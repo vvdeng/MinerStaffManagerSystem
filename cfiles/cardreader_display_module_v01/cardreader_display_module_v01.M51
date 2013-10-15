@@ -1,0 +1,314 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        10/14/2013  11:08:53  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL4\C51\BIN\BL51.EXE main.obj, useful.obj, vvspi.obj TO cardreader_display_module_v01 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  main.obj (MAIN)
+  useful.obj (USEFUL)
+  vvspi.obj (VVSPI)
+  D:\KEIL4\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL4\C51\LIB\C51S.LIB (?C?CLDOPTR)
+  D:\KEIL4\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  cardreader_display_module_v01 (MAIN)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            REG     0008H     0008H     ABSOLUTE     "REG BANK 1"
+            DATA    0010H     000DH     UNIT         ?DT?MAIN
+            DATA    001DH     0007H     UNIT         _DATA_GROUP_
+            IDATA   0024H     0001H     UNIT         ?STACK
+
+            * * * * * * *  X D A T A   M E M O R Y  * * * * * * *
+            XDATA   0000H     000FH     UNIT         ?XD?MAIN
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     003FH     UNIT         ?PR?SPI_ISR?MAIN
+                    0042H     0009H                  *** GAP ***
+            CODE    004BH     0003H     ABSOLUTE     
+            CODE    004EH     008CH     UNIT         ?C_C51STARTUP
+            CODE    00DAH     006DH     UNIT         ?PR?_DISPLAYSHUMA?MAIN
+            CODE    0147H     002DH     UNIT         ?C?LIB_CODE
+            CODE    0174H     002CH     UNIT         ?CO?MAIN
+            CODE    01A0H     0022H     UNIT         ?C_INITSEG
+            CODE    01C2H     0021H     UNIT         ?PR?MAIN?MAIN
+            CODE    01E3H     001FH     UNIT         ?PR?RESETDIGIBUF?MAIN
+            CODE    0202H     0018H     UNIT         ?PR?_DELAYMS?USEFUL
+            CODE    021AH     0011H     UNIT         ?PR?INIT?MAIN
+            CODE    022BH     0011H     UNIT         ?PR?TESTINIT?MAIN
+            CODE    023CH     000EH     UNIT         ?PR?READBYTE?VVSPI
+            CODE    024AH     000DH     UNIT         ?PR?INIT_SPI?VVSPI
+            CODE    0257H     000BH     UNIT         ?PR?_WRITEBYTE?VVSPI
+            CODE    0262H     000AH     UNIT         ?PR?_DELAYUS?USEFUL
+
+
+
+OVERLAY MAP OF MODULE:   cardreader_display_module_v01 (MAIN)
+
+
+SEGMENT                          DATA_GROUP 
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/14/2013  11:08:53  PAGE 2
+
+
+  +--> CALLED SEGMENT          START    LENGTH
+----------------------------------------------
+?C_C51STARTUP                  -----    -----
+  +--> ?PR?MAIN?MAIN
+  +--> ?C_INITSEG
+
+?PR?MAIN?MAIN                  -----    -----
+  +--> ?PR?INIT?MAIN
+  +--> ?PR?TESTINIT?MAIN
+  +--> ?PR?RESETDIGIBUF?MAIN
+  +--> ?PR?_DISPLAYSHUMA?MAIN
+
+?PR?INIT?MAIN                  -----    -----
+  +--> ?PR?INIT_SPI?VVSPI
+
+?PR?TESTINIT?MAIN              -----    -----
+  +--> ?PR?RESETDIGIBUF?MAIN
+
+?PR?_DISPLAYSHUMA?MAIN         001DH    0007H
+  +--> ?CO?MAIN
+  +--> ?PR?_DELAYUS?USEFUL
+
+
+
+SYMBOL TABLE OF MODULE:  cardreader_display_module_v01 (MAIN)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0093H         PUBLIC        P0M1
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:0010H         PUBLIC        duanInteval
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  C:01C2H         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  C:021AH         PUBLIC        init
+  D:0014H         PUBLIC        digiBuf
+  C:0174H         PUBLIC        shumaMap
+  C:01E3H         PUBLIC        resetDigiBuf
+  D:001AH         PUBLIC        spiState
+  C:022BH         PUBLIC        testInit
+  D:00CDH         PUBLIC        SPSTAT
+  D:00C8H         PUBLIC        T2CON
+  D:001BH         PUBLIC        spiBufIndex
+  C:0186H         PUBLIC        shumaDotMap
+  X:0000H         PUBLIC        spiBuf
+  C:0198H         PUBLIC        posCodeArr
+  D:00D0H         PUBLIC        PSW
+  C:00DAH         PUBLIC        _displayShuma
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/14/2013  11:08:53  PAGE 3
+
+
+  D:001CH         PUBLIC        dotPos
+  C:0003H         PUBLIC        spi_isr
+  D:0094H         PUBLIC        P0M0
+  D:00CFH         PUBLIC        SPDAT
+  -------         PROC          _DISPLAYSHUMA
+  D:001DH         SYMBOL        digi
+  D:0020H         SYMBOL        len
+  -------         DO            
+  D:0021H         SYMBOL        m
+  D:0022H         SYMBOL        n
+  D:0023H         SYMBOL        disSeg
+  -------         ENDDO         
+  C:00DAH         LINE#         25
+  C:00E2H         LINE#         27
+  C:00ECH         LINE#         29
+  C:00EFH         LINE#         31
+  C:00F7H         LINE#         33
+  C:00FEH         LINE#         34
+  C:0109H         LINE#         35
+  C:0114H         LINE#         36
+  C:0116H         LINE#         37
+  C:0116H         LINE#         38
+  C:0125H         LINE#         39
+  C:0125H         LINE#         40
+  C:0128H         LINE#         41
+  C:0132H         LINE#         42
+  C:0139H         LINE#         43
+  C:0142H         LINE#         44
+  C:0146H         LINE#         46
+  -------         ENDPROC       _DISPLAYSHUMA
+  -------         PROC          SPI_ISR
+  C:0003H         LINE#         58
+  C:000EH         LINE#         61
+  C:0011H         LINE#         62
+  C:001CH         LINE#         63
+  C:001CH         LINE#         64
+  C:001FH         LINE#         65
+  C:0021H         LINE#         66
+  C:0021H         LINE#         67
+  C:0024H         LINE#         68
+  C:0026H         LINE#         69
+  C:0026H         LINE#         70
+  C:0034H         LINE#         71
+  C:0036H         LINE#         72
+  C:0036H         LINE#         74
+  C:0039H         LINE#         76
+  -------         ENDPROC       SPI_ISR
+  -------         PROC          INIT
+  C:021AH         LINE#         77
+  C:021AH         LINE#         78
+  C:021DH         LINE#         79
+  C:0220H         LINE#         80
+  C:0222H         LINE#         81
+  C:0225H         LINE#         82
+  C:0228H         LINE#         84
+  C:022AH         LINE#         85
+  -------         ENDPROC       INIT
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/14/2013  11:08:53  PAGE 4
+
+
+  -------         PROC          RESETDIGIBUF
+  -------         DO            
+  D:0007H         SYMBOL        m
+  -------         ENDDO         
+  C:01E3H         LINE#         86
+  C:01E3H         LINE#         88
+  C:01E5H         LINE#         89
+  C:01F7H         LINE#         90
+  C:01FBH         LINE#         91
+  C:0201H         LINE#         92
+  -------         ENDPROC       RESETDIGIBUF
+  -------         PROC          TESTINIT
+  -------         DO            
+  D:0007H         SYMBOL        m
+  -------         ENDDO         
+  C:022BH         LINE#         93
+  C:022BH         LINE#         95
+  C:022BH         LINE#         96
+  C:0235H         LINE#         97
+  C:0235H         LINE#         99
+  C:0238H         LINE#         100
+  C:023BH         LINE#         101
+  -------         ENDPROC       TESTINIT
+  -------         PROC          MAIN
+  C:01C2H         LINE#         103
+  C:01C2H         LINE#         104
+  C:01C2H         LINE#         106
+  C:01C5H         LINE#         107
+  C:01C8H         LINE#         108
+  C:01C8H         LINE#         109
+  C:01CDH         LINE#         111
+  C:01D0H         LINE#         112
+  C:01D3H         LINE#         113
+  C:01D6H         LINE#         114
+  C:01D6H         LINE#         115
+  C:01E1H         LINE#         117
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        MAIN
+
+  -------         MODULE        USEFUL
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  C:0202H         PUBLIC        _delayMs
+  C:0262H         PUBLIC        _delayUs
+  -------         PROC          _DELAYUS
+  D:0006H         SYMBOL        t
+  C:0262H         LINE#         2
+  C:0262H         LINE#         3
+  C:026BH         LINE#         5
+  -------         ENDPROC       _DELAYUS
+  -------         PROC          _DELAYMS
+  D:0004H         SYMBOL        t
+  C:0202H         LINE#         7
+  C:0206H         LINE#         9
+  C:0210H         LINE#         11
+  C:0217H         LINE#         13
+  C:0219H         LINE#         15
+  -------         ENDPROC       _DELAYMS
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/14/2013  11:08:53  PAGE 5
+
+
+  -------         ENDMOD        USEFUL
+
+  -------         MODULE        VVSPI
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  D:00CEH         PUBLIC        SPCTL
+  D:00A8H         PUBLIC        IE
+  C:023CH         PUBLIC        ReadByte
+  D:00B8H         PUBLIC        IP
+  C:0257H         PUBLIC        _WriteByte
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  D:00AFH         PUBLIC        IE2
+  D:00CDH         PUBLIC        SPSTAT
+  C:024AH         PUBLIC        init_spi
+  D:00C8H         PUBLIC        T2CON
+  D:00D0H         PUBLIC        PSW
+  D:00CFH         PUBLIC        SPDAT
+  -------         PROC          INIT_SPI
+  C:024AH         LINE#         3
+  C:024AH         LINE#         4
+  C:024AH         LINE#         9
+  C:024DH         LINE#         10
+  C:0250H         LINE#         11
+  C:0253H         LINE#         13
+  C:0256H         LINE#         14
+  -------         ENDPROC       INIT_SPI
+  -------         PROC          _WRITEBYTE
+  D:0007H         SYMBOL        temp
+  C:0257H         LINE#         16
+  C:0257H         LINE#         17
+  C:0257H         LINE#         18
+  C:0259H         LINE#         19
+  C:025EH         LINE#         20
+  C:0261H         LINE#         21
+  -------         ENDPROC       _WRITEBYTE
+  -------         PROC          READBYTE
+  -------         DO            
+  D:0007H         SYMBOL        temp
+  -------         ENDDO         
+  C:023CH         LINE#         23
+  C:023CH         LINE#         24
+  C:023CH         LINE#         27
+  C:023FH         LINE#         28
+  C:0244H         LINE#         29
+  C:0246H         LINE#         30
+  C:0249H         LINE#         31
+  C:0249H         LINE#         32
+  -------         ENDPROC       READBYTE
+  -------         ENDMOD        VVSPI
+
+  -------         MODULE        ?C?CLDOPTR
+  C:0147H         PUBLIC        ?C?CLDOPTR
+  -------         ENDMOD        ?C?CLDOPTR
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/14/2013  11:08:53  PAGE 6
+
+
+    SEGMENT: ?PR?_DELAYMS?USEFUL
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_WRITEBYTE?VVSPI
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?READBYTE?VVSPI
+
+Program Size: data=37.0 xdata=15 code=611
+LINK/LOCATE RUN COMPLETE.  3 WARNING(S),  0 ERROR(S)

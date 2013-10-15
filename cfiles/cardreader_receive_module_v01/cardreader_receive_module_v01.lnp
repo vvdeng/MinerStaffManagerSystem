@@ -1,0 +1,6 @@
+"main.obj",
+"nrf24.obj",
+"useful.obj",
+"vvspi.obj" 
+TO "cardreader_receive_module_v01" 
+RAMSIZE(256) 

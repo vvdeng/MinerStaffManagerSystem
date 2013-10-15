@@ -1,0 +1,21 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+D:\Keil4\workspace\cardstation_display_module_v01\cardstation_display_module_v01.uvproj
+Project File Date:  10/14/2013
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling main.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?USEFUL
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_WRITEBYTE?VVSPI
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?READBYTE?VVSPI
+Program Size: data=39.0 xdata=15 code=611
+creating hex file from "cardstation_display_module_v01"...
+"cardstation_display_module_v01" - 0 Error(s), 3 Warning(s).

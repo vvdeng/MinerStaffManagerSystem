@@ -1,0 +1,10 @@
+"config.obj",
+"display.obj",
+"eeprom.obj",
+"main.obj",
+"useful.obj",
+"vvspi.obj",
+"sd2200.obj",
+"pm25.obj" 
+TO "cardstation_mainboard_v03" 
+RAMSIZE(256) 

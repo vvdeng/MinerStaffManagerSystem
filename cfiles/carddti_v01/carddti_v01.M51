@@ -1,0 +1,280 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        10/12/2013  14:38:39  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL4\C51\BIN\BL51.EXE useful.obj, main.obj TO carddti_v01 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  useful.obj (USEFUL)
+  main.obj (MAIN)
+  D:\KEIL4\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL4\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  carddti_v01 (USEFUL)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            REG     0008H     0008H     ABSOLUTE     "REG BANK 1"
+            DATA    0010H     000AH     UNIT         ?DT?MAIN
+            IDATA   001AH     0001H     UNIT         ?STACK
+
+            * * * * * * *  X D A T A   M E M O R Y  * * * * * * *
+            XDATA   0000H     07D8H     UNIT         ?XD?MAIN
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0017H     UNIT         ?PR?_DELAYMS?USEFUL
+                    001AH     0009H                  *** GAP ***
+            CODE    0023H     0003H     ABSOLUTE     
+            CODE    0026H     0015H     UNIT         ?PR?_DELAYUS?USEFUL
+                    003BH     0008H                  *** GAP ***
+            CODE    0043H     0003H     ABSOLUTE     
+            CODE    0046H     008CH     UNIT         ?C_C51STARTUP
+            CODE    00D2H     006DH     UNIT         ?PR?MAIN?MAIN
+            CODE    013FH     0049H     UNIT         ?PR?UART2?MAIN
+            CODE    0188H     0043H     UNIT         ?PR?UART?MAIN
+            CODE    01CBH     0035H     UNIT         ?PR?INIT?MAIN
+            CODE    0200H     0011H     UNIT         ?PR?_SENDDATAUP?MAIN
+            CODE    0211H     0010H     UNIT         ?PR?_SENDDATADOWN?MAIN
+            CODE    0221H     000FH     UNIT         ?C_INITSEG
+
+
+
+OVERLAY MAP OF MODULE:   carddti_v01 (USEFUL)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?MAIN
+  +--> ?C_INITSEG
+
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/12/2013  14:38:39  PAGE 2
+
+
+?PR?MAIN?MAIN
+  +--> ?PR?INIT?MAIN
+  +--> ?PR?_SENDDATADOWN?MAIN
+  +--> ?PR?_SENDDATAUP?MAIN
+
+
+
+SYMBOL TABLE OF MODULE:  carddti_v01 (USEFUL)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        USEFUL
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  C:0003H         PUBLIC        _delayMs
+  C:0031H         PUBLIC        _delayUs
+  -------         PROC          L?0009
+  -------         ENDPROC       L?0009
+  -------         PROC          _DELAYUS
+  D:0006H         SYMBOL        t
+  C:0031H         LINE#         2
+  C:0031H         LINE#         3
+  C:003AH         LINE#         5
+  -------         ENDPROC       _DELAYUS
+  -------         PROC          _DELAYMS
+  D:0004H         SYMBOL        t
+  C:0003H         LINE#         7
+  C:0007H         LINE#         9
+  C:0011H         LINE#         11
+  C:0011H         LINE#         12
+  C:0014H         LINE#         13
+  C:0014H         LINE#         14
+  C:0017H         LINE#         15
+  C:0019H         LINE#         17
+  -------         ENDPROC       _DELAYMS
+  -------         ENDMOD        USEFUL
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:00B2H         PUBLIC        P3M0
+  D:0090H         PUBLIC        P1
+  D:00B1H         PUBLIC        P3M1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+  B:00A0H.0       PUBLIC        ledTest0
+  B:00A0H.1       PUBLIC        ledTest1
+  B:00B0H.3       PUBLIC        ledTest2
+  B:00B0H.4       PUBLIC        ledTest3
+  D:00A8H         PUBLIC        IE
+  D:0010H         PUBLIC        commUpBufIndex
+  D:0012H         PUBLIC        cmdUpEndFlag
+  X:0000H         PUBLIC        commUpBuf
+  D:0013H         PUBLIC        commBufUp
+  B:00A8H.4       PUBLIC        ES
+  D:00B8H         PUBLIC        IP
+  B:0098H.0       PUBLIC        RI
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/12/2013  14:38:39  PAGE 3
+
+
+  B:0098H.1       PUBLIC        TI
+  C:0188H         PUBLIC        Uart
+  C:00D2H         PUBLIC        main
+  D:0099H         PUBLIC        SBUF
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  C:01CBH         PUBLIC        init
+  B:00B0H.5       PUBLIC        RS_485_2
+  D:00AFH         PUBLIC        IE2
+  D:008EH         PUBLIC        AUXR
+  C:0211H         PUBLIC        _sendDataDown
+  B:00A8H.3       PUBLIC        ET1
+  D:0014H         PUBLIC        dataDownEndFlag
+  D:008DH         PUBLIC        TH1
+  D:00D6H         PUBLIC        T2H
+  C:013FH         PUBLIC        Uart2
+  D:008BH         PUBLIC        TL1
+  D:00D7H         PUBLIC        T2L
+  B:0088H.6       PUBLIC        TR1
+  D:009BH         PUBLIC        S2BUF
+  D:0015H         PUBLIC        commDownBufIndex
+  D:0017H         PUBLIC        commState1
+  D:0018H         PUBLIC        commState2
+  D:009AH         PUBLIC        S2CON
+  D:00C8H         PUBLIC        T2CON
+  X:03ECH         PUBLIC        commDownBuf
+  D:0019H         PUBLIC        commBufDown
+  C:0200H         PUBLIC        _sendDataUp
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          _SENDDATADOWN
+  D:0007H         SYMBOL        dat
+  C:0211H         LINE#         53
+  C:0211H         LINE#         54
+  C:0213H         LINE#         55
+  C:0215H         LINE#         56
+  C:0217H         LINE#         57
+  C:021AH         LINE#         58
+  C:021CH         LINE#         60
+  C:021EH         LINE#         61
+  C:0220H         LINE#         62
+  -------         ENDPROC       _SENDDATADOWN
+  -------         PROC          _SENDDATAUP
+  D:0007H         SYMBOL        dat
+  C:0200H         LINE#         63
+  C:0200H         LINE#         65
+  C:0203H         LINE#         68
+  C:0205H         LINE#         69
+  C:020AH         LINE#         70
+  C:020DH         LINE#         71
+  C:0210H         LINE#         73
+  -------         ENDPROC       _SENDDATAUP
+  -------         PROC          UART
+  C:0188H         LINE#         80
+  C:0193H         LINE#         83
+  C:0196H         LINE#         84
+  C:0196H         LINE#         85
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/12/2013  14:38:39  PAGE 4
+
+
+  C:0198H         LINE#         86
+  C:019CH         LINE#         87
+  C:019CH         LINE#         88
+  C:01B3H         LINE#         89
+  C:01B8H         LINE#         90
+  C:01B8H         LINE#         92
+  C:01BBH         LINE#         93
+  C:01BBH         LINE#         95
+  C:01BBH         LINE#         97
+  C:01BDH         LINE#         98
+  C:01C0H         LINE#         99
+  C:01C2H         LINE#         100
+  C:01C2H         LINE#         102
+  -------         ENDPROC       UART
+  -------         PROC          UART2
+  C:013FH         LINE#         105
+  C:014AH         LINE#         108
+  C:014FH         LINE#         109
+  C:014FH         LINE#         110
+  C:0152H         LINE#         114
+  C:0156H         LINE#         115
+  C:0156H         LINE#         116
+  C:016DH         LINE#         117
+  C:0172H         LINE#         118
+  C:0172H         LINE#         119
+  C:0175H         LINE#         120
+  C:0175H         LINE#         122
+  C:0175H         LINE#         124
+  C:0177H         LINE#         125
+  C:017CH         LINE#         126
+  C:017CH         LINE#         129
+  C:017FH         LINE#         132
+  C:017FH         LINE#         134
+  -------         ENDPROC       UART2
+  -------         PROC          INIT
+  C:01CBH         LINE#         135
+  C:01CBH         LINE#         136
+  C:01CEH         LINE#         137
+  C:01D1H         LINE#         139
+  C:01D3H         LINE#         149
+  C:01D6H         LINE#         150
+  C:01D9H         LINE#         151
+  C:01DCH         LINE#         152
+  C:01DFH         LINE#         153
+  C:01E2H         LINE#         154
+  C:01E5H         LINE#         155
+  C:01E7H         LINE#         156
+  C:01E9H         LINE#         157
+  C:01EBH         LINE#         159
+  C:01EEH         LINE#         160
+  C:01F1H         LINE#         161
+  C:01F4H         LINE#         162
+  C:01F7H         LINE#         163
+  C:01FAH         LINE#         164
+  C:01FDH         LINE#         169
+  C:01FFH         LINE#         174
+  -------         ENDPROC       INIT
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/12/2013  14:38:39  PAGE 5
+
+
+  -------         PROC          MAIN
+  -------         DO            
+  D:0004H         SYMBOL        m
+  -------         ENDDO         
+  C:00D2H         LINE#         175
+  C:00D2H         LINE#         177
+  C:00D5H         LINE#         178
+  C:00D7H         LINE#         179
+  C:00D9H         LINE#         180
+  C:00DBH         LINE#         181
+  C:00DDH         LINE#         182
+  C:00DDH         LINE#         185
+  C:00E3H         LINE#         186
+  C:00E5H         LINE#         187
+  C:00F0H         LINE#         189
+  C:00FFH         LINE#         190
+  C:0106H         LINE#         197
+  C:010BH         LINE#         198
+  C:010DH         LINE#         199
+  C:010DH         LINE#         200
+  C:0112H         LINE#         201
+  C:011EH         LINE#         202
+  C:012DH         LINE#         203
+  C:0134H         LINE#         204
+  C:0136H         LINE#         205
+  C:013BH         LINE#         206
+  C:013DH         LINE#         207
+  C:013DH         LINE#         208
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        MAIN
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?USEFUL
+
+Program Size: data=27.0 xdata=2008 code=543
+LINK/LOCATE RUN COMPLETE.  1 WARNING(S),  0 ERROR(S)

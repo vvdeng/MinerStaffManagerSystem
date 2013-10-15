@@ -1,0 +1,5 @@
+"main.obj",
+"useful.obj",
+"vvspi.obj" 
+TO "cardreader_display_module_v01" 
+RAMSIZE(256) 
