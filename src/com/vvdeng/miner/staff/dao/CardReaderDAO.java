@@ -33,7 +33,7 @@ public class CardReaderDAO {
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			session.save(cardReader);
+			session.saveOrUpdate(cardReader);
 			tx.commit();
 		} catch (HibernateException e) {
 			// TODO: handle exception
@@ -57,6 +57,24 @@ public class CardReaderDAO {
 		} finally {
 			session.close();
 		}
+		return result;
+	}
+	public Long findByReaderd(Integer readerId) {
+		Long result=null;
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction transaction = null;
+		try {
+			transaction = session.beginTransaction();
+			Query query = session.createQuery("select id  from CardReader where readerId="+readerId);
+			result =(Long) query.uniqueResult();
+			transaction.commit();
+		} catch (HibernateException e) {
+			transaction.rollback();
+			e.printStackTrace();
+		} finally {
+			session.close();
+		}
+
 		return result;
 	}
 	public void delete(Long id) {
@@ -100,6 +118,24 @@ public class CardReaderDAO {
 		try {
 			
 			Query query=session.createQuery("select id,name,state from CardReader");
+			result=query.list();
+			
+		} catch (HibernateException e) {
+			// TODO: handle exception
+		
+			e.printStackTrace();
+		} finally {
+			session.close();
+		}
+		return result;
+		
+	}
+	public List<CardReader> listAll(){
+		List<CardReader> result=null;
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		try {
+			
+			Query query=session.createQuery("from CardReader");
 			result=query.list();
 			
 		} catch (HibernateException e) {

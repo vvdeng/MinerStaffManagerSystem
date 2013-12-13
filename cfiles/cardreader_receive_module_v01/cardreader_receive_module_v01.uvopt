@@ -160,10 +160,10 @@
       <FileType>1</FileType>
       <tvExp>1</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>12</ColumnNumber>
+      <ColumnNumber>2</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>124</TopLine>
-      <CurrentLine>136</CurrentLine>
+      <TopLine>296</TopLine>
+      <CurrentLine>296</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
@@ -211,6 +211,32 @@
       <FilenameWithoutPath>vvspi.c</FilenameWithoutPath>
     </File>
   </Group>
+
+  <AlienFiles>
+    <PathWithFilename>D:\KEIL4\C51\INC\STRING.H</PathWithFilename>
+    <TopLine>36</TopLine>
+    <CurrentLine>51</CurrentLine>
+    <Constant>0</Constant>
+    <WindowPosition>
+      <length>0</length>
+      <flags>0</flags>
+      <showCmd>0</showCmd>
+      <MinPosition>
+        <xPos>0</xPos>
+        <yPos>0</yPos>
+      </MinPosition>
+      <MaxPosition>
+        <xPos>0</xPos>
+        <yPos>0</yPos>
+      </MaxPosition>
+      <NormalPosition>
+        <Top>0</Top>
+        <Left>0</Left>
+        <Right>0</Right>
+        <Bottom>0</Bottom>
+      </NormalPosition>
+    </WindowPosition>
+  </AlienFiles>
 
   <AlienFiles>
     <PathWithFilename>D:\Keil4\workspace\cardreader_receive_module_v01\USEFUL.H</PathWithFilename>
@@ -267,7 +293,7 @@
   <AlienFiles>
     <PathWithFilename>D:\Keil4\workspace\cardreader_receive_module_v01\VVSPI.H</PathWithFilename>
     <TopLine>4</TopLine>
-    <CurrentLine>13</CurrentLine>
+    <CurrentLine>16</CurrentLine>
     <Constant>0</Constant>
     <WindowPosition>
       <length>0</length>
@@ -1661,9 +1687,9 @@
       <Documents>
         <Doc>
           <Name>.\main.c</Name>
-          <ColumnNumber>12</ColumnNumber>
-          <TopLine>124</TopLine>
-          <CurrentLine>136</CurrentLine>
+          <ColumnNumber>2</ColumnNumber>
+          <TopLine>296</TopLine>
+          <CurrentLine>296</CurrentLine>
         </Doc>
         <Doc>
           <Name>NRF24.H</Name>
@@ -1673,9 +1699,9 @@
         </Doc>
         <Doc>
           <Name>VVSPI.H</Name>
-          <ColumnNumber>43</ColumnNumber>
+          <ColumnNumber>23</ColumnNumber>
           <TopLine>4</TopLine>
-          <CurrentLine>13</CurrentLine>
+          <CurrentLine>16</CurrentLine>
         </Doc>
         <Doc>
           <Name>.\vvspi.c</Name>
@@ -1700,6 +1726,12 @@
           <ColumnNumber>0</ColumnNumber>
           <TopLine>1</TopLine>
           <CurrentLine>1</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>D:\KEIL4\C51\INC\STRING.H</Name>
+          <ColumnNumber>19</ColumnNumber>
+          <TopLine>36</TopLine>
+          <CurrentLine>51</CurrentLine>
         </Doc>
       </Documents>
     </MDIGroup>

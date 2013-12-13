@@ -16,7 +16,7 @@ public class SysConfiguration {
 	public static final String DBCONFIG_FILE_PATH = "db.properties";
 	public static final int SYS_STATE_RUNNING = 1;
 	public static final int SYS_STATE_REBOOT = 2;
-	public static int stateNum=1;
+	public static int stationNum=4;
 	public static String commPort;
 	public static Integer baudRate;
 	
@@ -39,6 +39,7 @@ public class SysConfiguration {
 	public static String clazz16 = "16点";
 	public static String tempDir = "temp/";
 	public static int sysState=SYS_STATE_REBOOT;
+	public static int timeInteval=10000;//默认十秒
 	//开始通讯标志，用户登录成功后才开始系统通信
 	public static boolean commStarted=false;
 	public static void init() {
@@ -64,7 +65,7 @@ public class SysConfiguration {
 
 			e.printStackTrace();
 		}
-
+		timeInteval=calTimeInteval(stationNum);
 	}
 
 	public static void parse(String url) {
@@ -81,7 +82,30 @@ public class SysConfiguration {
 		return new StringBuilder().append("jdbc:mysql://").append(ip)
 				.append(":").append(port).append("/minerlamp").toString();
 	}
-
+	public static int calTimeInteval(int size){
+		int result=10000;
+		switch (size) {
+		case 0:
+		case 1:
+			result=6000;			
+			break;
+		case 2:
+			result=3000;
+			break;
+		case 3:
+			result=2000;
+			break;
+		case 4:
+			result=1500;
+			break;
+		case 5:
+			result=1200;
+		default:
+			result=1000; //1秒
+			break;
+		}
+		return result;
+	}
 	public static void main(String[] args) {
 		init();
 	}

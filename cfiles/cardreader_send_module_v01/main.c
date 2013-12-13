@@ -17,10 +17,12 @@ uchar  CARD_RECEIVE_ADDRESS[CARD_RECEIVE_ADDR_LEN]={0x09,0x09,0x09,0x09,0x09};
 uchar cardAddrArr[CARD_ADDR_LEN]={0};
 uchar recBuf[DATA_LEN]={0};
 uchar testAlertCount=0,callStaffIndex=0;
-bit callStaffFlag=0,callStaffRunFlag=0;
-#define CALL_STAFFS_LEN 161 //第0位为人数
+bit callStaffFlag=0,callAllStaffFlag=0,callStaffRunFlag=0;
+#define MAX_CALL_STAFF_NUM 12
+#define CALL_STAFFS_LEN 25 //第0位为人数 最大12个人
 #define SIGN_CARD_NORMAL 0x00
 #define SIGN_CARD_ALERT 0x01 
+#define SIGN_ALL_CARD_ALERT 0x02 
 #define SIGN_ANS 0x01
 #define SIGN_ALERT 0x82
 uint cardAddr=1;
@@ -90,15 +92,20 @@ void spi_isr( ) interrupt 9 using  1         //SPI interrupt routine 9 (004BH)
 	  case SYM_END:
 	 	// 	spiState=SPI_STATE_TIME_FINISHED;
 		LED_TEST2=~LED_TEST2;
-		if(spiBuf[0]>0){
-				
-			callStaffFlag=1;
-	//		callStaffRunFlag=1;
-			
+		if(spiBuf[0]==1&&spiBuf[1]==0x7f){
+		   callAllStaffFlag=1;
 		}
-		else{
-			callStaffFlag=0;
+		else 
+		{
+			callAllStaffFlag=0;
+			if(spiBuf[0]>0){
+				callStaffFlag=1;
+			}
+			else{
+				callStaffFlag=0;
+			}	
 		}
+	
 		spiBufIndex=0;	
 		spiState=SPI_STATE_NONE;		
 		break;
@@ -113,7 +120,7 @@ void spi_isr( ) interrupt 9 using  1         //SPI interrupt routine 9 (004BH)
 
 
 void main(){
-	
+	uchar m;
 	init();
 	
 	LED_TEST0=0;
@@ -122,23 +129,29 @@ void main(){
 
     while(1)
     {   
-		testAlertCount=(testAlertCount+1)%3;
-		if(callStaffFlag==0){
-			recBuf[0]=SIGN_CARD_NORMAL;
+//		testAlertCount=(testAlertCount+1)%3;
+		if(callAllStaffFlag==1){
+			 recBuf[0]=SIGN_ALL_CARD_ALERT;
+		}
+		else if(callStaffFlag==1){
+			recBuf[0]=SIGN_CARD_ALERT;
+		
 		}
 		else{
-			recBuf[0]=SIGN_CARD_ALERT;		
+			recBuf[0]=SIGN_CARD_NORMAL;		
 		}
 		nRF24L01_TxPacket(CARD_RECEIVE_ADDRESS, CARD_RECEIVE_ADDR_LEN,recBuf,DATA_LEN);
 		delayMs(2);
 		if(callStaffFlag==1){
-			for(callStaffIndex=1/*第0位为总人数*/;callStaffIndex<spiBuf[0]*2;callStaffIndex+=2)
-			{ 
-				nRF24L01_TxPacket(CARD_RECEIVE_ADDRESS, CARD_RECEIVE_ADDR_LEN,recBuf,DATA_LEN);
-				delayMs(2);
-				makeAddr2(&spiBuf[callStaffIndex]);
-				nRF24L01_TxPacket(cardAddrArr, CARD_ADDR_LEN,recBuf,DATA_LEN);
-				delayMs(2);
+			for(m=0;m<3;m++){
+				for(callStaffIndex=1/*第0位为总人数*/;callStaffIndex<spiBuf[0]*2;callStaffIndex+=2)
+				{ 
+					nRF24L01_TxPacket(CARD_RECEIVE_ADDRESS, CARD_RECEIVE_ADDR_LEN,recBuf,DATA_LEN);
+					delayMs(2);
+					makeAddr2(&spiBuf[callStaffIndex]);
+					nRF24L01_TxPacket(cardAddrArr, CARD_ADDR_LEN,recBuf,DATA_LEN);
+					delayMs(2);
+				}
 			}
 			LED_TEST0=~LED_TEST0;
 		}

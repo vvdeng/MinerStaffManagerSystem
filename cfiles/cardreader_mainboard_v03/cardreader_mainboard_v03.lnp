@@ -2,9 +2,9 @@
 "display.obj",
 "eeprom.obj",
 "main.obj",
-"pm25.obj",
 "sd2200.obj",
 "useful.obj",
-"vvspi.obj" 
+"vvspi.obj",
+"pm25.obj" 
 TO "cardreader_mainboard_v03" 
 RAMSIZE(256) 

@@ -20,13 +20,14 @@ sfr IPH    = 0xB7;
 #define SYM_END 0xFE
 #define SEG_COUNT 8
 
-#define MAX_CALL_STAFF_COUNT 80
+#define MAX_CALL_STAFF_COUNT 12
 #define CALL_STAFF_BUF_LEN (MAX_CALL_STAFF_COUNT*2+1) //µÚ0×Ö½Ú´æ´¢ÈËÊý
 
 #define SET_TIME_BUF_LEN 8
 #define UP_TIMEOUT_THRESHOLD 12000  //6Ãë
 
 #define SIGN_CARD_NORMAL 0x00  //
-#define SIGN_CARD_RING 0x01    //ºô½Ð
-#define SIGN_CARD_BAT_LOW 0x02 // Ç·Ñ¹
+#define SIGN_CARD_ALERT 0x01
+#define SIGN_ALL_CARD_ALERT 0x02 
+#define SIGN_CARD_BAT_LOW 0x04 
 #endif

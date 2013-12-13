@@ -8,7 +8,7 @@ uchar irCount=0;
 uchar setState=SET_STATE_NONE;
 
 uchar code configMenuArr[CONFIG_LEN]={CONFIG_ADDR,CONFIG_DISPLAY_MODEL,CONFIG_DEBUG,CONFIG_EXIT};
-uchar xdata configArr[CONFIG_LEN]={0};
+uchar  configArr[CONFIG_LEN]={0};
 
 
 uchar  curMenuIndex=0,curSelBit=0,curSelItem=0;

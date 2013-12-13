@@ -1,0 +1,10 @@
+"config.obj",
+"display.obj",
+"DS1302.obj",
+"eeprom.obj",
+"main.obj",
+"useful.obj",
+"vvspi.obj",
+"pm25.obj" 
+TO "cardreader_mainboard_v02" 
+RAMSIZE(256) 

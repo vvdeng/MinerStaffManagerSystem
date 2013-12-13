@@ -194,6 +194,16 @@ void I2CReadDate(void)
 	sendTimeBuf[2]=sendTimeBuf[2]+tmp*10;
 	showTimeBuf[4]=sendTimeBuf[2]/10;
     showTimeBuf[5]=sendTimeBuf[2]%10;
+  	//ƒÍ‘¬»’
+	tmp=timeBuf[0]/16;
+	sendTimeBuf[3]=timeBuf[0]%16;
+	sendTimeBuf[3]=sendTimeBuf[3]+tmp*10;
+	tmp=timeBuf[1]/16;
+	sendTimeBuf[4]=timeBuf[1]%16;
+	sendTimeBuf[4]=sendTimeBuf[4]+tmp*10;
+	tmp=timeBuf[2]/16;
+	sendTimeBuf[5]=timeBuf[2]%16;
+	sendTimeBuf[5]=sendTimeBuf[5]+tmp*10;
 
 
 }

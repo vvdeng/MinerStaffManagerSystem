@@ -17,8 +17,12 @@ import javax.comm.SerialPortEventListener;
 import javax.comm.UnsupportedCommOperationException;
 import javax.swing.JOptionPane;
 
+import com.vvdeng.miner.constant.StationCommState;
+import com.vvdeng.miner.staff.dao.StationLogDAO;
 import com.vvdeng.miner.staff.entity.Staff;
+import com.vvdeng.miner.staff.entity.SubDevice;
 import com.vvdeng.miner.staff.ui.StaffManagerFrame;
+import com.vvdeng.miner.staff.utils.DAOUtil;
 import com.vvdeng.miner.staff.utils.GlobalData;
 import com.vvdeng.miner.staff.utils.SysConfiguration;
 
@@ -45,31 +49,26 @@ public class SerialComm implements /* Runnable, */SerialPortEventListener {
 	public static final int UPDATE_STAFF_INFO = 4;
 	public static final int DATA_TYPE_SINGLE_UNIT_INFO = 5;
 	public static final int DATA_TYPE_UNITS_INFO_LENTTH = 101;
-	// TODO //命令号最高位更改为1 广播1000 0000 ；获取充电状态1010 00000；更新员工信息1100 0000；
-	public static final byte CMD_SEND_ALL_LED_MESSAGES = (byte) 0x80;// 广播LED文字信息
-	public static final byte CMD_REQ_UNIT_INFO = (byte) 0xA0;// 获取充电状态信息
-	public static final byte CMD_UPDATE_STAFF_INFO = (byte) 0xC0;// 更新员工信息
-	public static final byte DATA_PRE_UNIT_INFO = 0x50; // 充电状态数据前缀
-	public static final byte DATA_PRE__UPDATE_RACK_STAFF = 0x60; // 更新员工信息前缀
-	public static final byte DATA_PRE__NULL = 0x00; // 空前缀
+
 	private byte[] buffers;
 	private int currentIndex;
 	private byte[] bigBuf;
 	private int bigBufIndex;
 	private boolean serialCommBusy;
 	private boolean serialCommNotConnected;
+	// 命令格式定义为0x1xxx 000x
 	public static final byte CMD_QUERY_STATE = (byte) 0x80;// 1000
 															// 0000轮询各分站，上报采集到的当前标识卡状态。
 															// 0x81-0x88
 															// 不用做命令好，用作端口号
 	public static final byte CMD_SYNCH_TIME = (byte) 0x81;
-	public static final byte CMD_CALL_STAFF = (byte) 0x84;
-	public static final byte CMD_REQ_TIMEOUT_READER = (byte) 0x85;
-	
+	public static final byte CMD_CALL_STAFF = (byte) 0x90;
+	public static final byte CMD_REQ_TIMEOUT_READER = (byte) 0x91;
+	public static final byte CMD_REQ_TIMEOUT_STATION = (byte) 0xa0;
 
 	public static final byte CMD_BROADCAST = (byte) 0x01;
 	public static final int SEQ = 0;
-	public static int currentStationIndex = 1;
+//	public static int GlobalData.currentStationIndex = 0;
 	public static int commState = 0;
 	public static final int STATE_NOTHING = 0;
 	public static final int STATE_QUERY_STATION_STATE = 1;
@@ -77,7 +76,19 @@ public class SerialComm implements /* Runnable, */SerialPortEventListener {
 	public static final int STATE_CALL_STAFF = 3;
 	public static final int STATE_REQ_TIMEOUT_READER = 4;
 	public static final int STATE_WAIT_TIMEOUT_READER = 5;
+	public static final int STATE_TEST = 6;
+	public static final int STATE_SAVING_DATA = 7;
+	public static final int STATE_CLEARING_ALLDATA = 8;
+	// 分隔符号定义为 0x1xxx YYYx YYY不能为全0
+	public static final int SYM_START = 0xfd;
 	public static final int SYM_END = 0xfe;
+
+	public static final int STATION_DATA_DELIMN = 0xf8;
+	public static final int READER_DATA_DELIMN = 0xf9;
+	public static final int STATION_NOT_READY = 1;
+	public static final int STATION_OK = 2;
+
+	public static final int READER_TIMEOUT_SYM = 96;
 
 	public static void main(String[] args) {
 
@@ -94,9 +105,8 @@ public class SerialComm implements /* Runnable, */SerialPortEventListener {
 		// }
 		//
 		// }
-		if((0x80&0x82)==0x80){
-			
-			
+		if ((0x80 & 0x82) == 0x80) {
+
 		}
 	}
 
@@ -177,15 +187,17 @@ public class SerialComm implements /* Runnable, */SerialPortEventListener {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(staffManagerFrame, "通信异常，请重新插拔计算机串口的连接后\n重启本软件");
-			System.exit(0);
-		/*	int choice = JOptionPane.showConfirmDialog(null,
+			JOptionPane.showMessageDialog(staffManagerFrame,
 					"通信异常，请重新插拔计算机串口的连接后\n重启本软件");
-			if(choice==JOptionPane.YES_OPTION){
-				
-				
-			}
-		*/
+			System.exit(0);
+			/*
+			 * int choice = JOptionPane.showConfirmDialog(null,
+			 * "通信异常，请重新插拔计算机串口的连接后\n重启本软件");
+			 * if(choice==JOptionPane.YES_OPTION){
+			 * 
+			 * 
+			 * }
+			 */
 		}
 	}
 
@@ -233,7 +245,7 @@ public class SerialComm implements /* Runnable, */SerialPortEventListener {
 			try {
 				while (inputStream.available() > 0) {
 					int c = inputStream.read();
-					
+
 					/*
 					 * if (isCmd(c)) { continue; }
 					 */
@@ -246,7 +258,7 @@ public class SerialComm implements /* Runnable, */SerialPortEventListener {
 						System.out.println("c=" + c + " commState=" + commState
 								+ " index=" + currentIndex + " dataType="
 								+ dataType + " data=" + c);
-						
+
 						buffers[currentIndex++] = (byte) c;
 						if (c == SYM_END || currentIndex >= BUFFER_SIZE) {
 
@@ -257,12 +269,20 @@ public class SerialComm implements /* Runnable, */SerialPortEventListener {
 						System.out.println("c=" + c + " commState=" + commState
 								+ " bigBufIndex=" + bigBufIndex + " dataType="
 								+ dataType + " data=" + c);
-						
+
 						bigBuf[bigBufIndex++] = (byte) c;
 						if (c == SYM_END || bigBufIndex >= BIGBUF_SIZE) {
 
-						//	processReqTimeoutReader();
-							bigBuf=null;
+							// processReqTimeoutReader();
+							bigBuf = null;
+						}
+					}
+					if (commState == STATE_TEST) {
+
+						System.out.print(c + " ");
+						if ((++testCount) % 100 == 0) {
+
+							System.out.println();
 						}
 					}
 
@@ -275,42 +295,60 @@ public class SerialComm implements /* Runnable, */SerialPortEventListener {
 		}
 	}
 
+	int testCount = 0;
+
 	public void processStationInfo() {
-		byte[] oriDateArr = new byte[currentIndex];
+		byte[] oriDataArr = new byte[currentIndex];
 		for (int i = 0; i < currentIndex; i++) {
-			oriDateArr[i] = buffers[i];
+			oriDataArr[i] = buffers[i];
 		}
 		;
-		GlobalData.stationStateMap.put(currentStationIndex, oriDateArr);
+		GlobalData.stationStateMap.put(GlobalData.currentStationIndex, oriDataArr);
 		commState = STATE_NOTHING;
 		currentIndex = 0;
-		reqNextStationInfo();
+		try {
+			DAOUtil.parseState(oriDataArr);
+		} catch (Exception e) {
+			e.printStackTrace();
+			commState=STATE_NOTHING;
+		}
+		
+		GlobalData.currentBgActivityState=StaffManagerFrame.BackgroundActivity.STATE_ONE_REFRESHED;
+		staffManagerFrame.notifyActivity();
+		// reqNextStationInfo();
 	}
 
 	public void reqCurrentStationInfo() {
 		commState = STATE_QUERY_STATION_STATE;
+		send(SYM_START);
 		send(CMD_QUERY_STATE);
-		send(currentStationIndex);
+		send(GlobalData.currentStationIndex);
 
 		send(SYM_END);
 	}
 
 	public void reqNextStationInfo() {
-		currentStationIndex++;
-		if (currentStationIndex <= SysConfiguration.stateNum) {
+		GlobalData.currentStationIndex++;
+		SubDevice subDevice=GlobalData.subDeviceMap.get(GlobalData.currentStationIndex);
+		if(subDevice!=null){
+			subDevice.setState(StationCommState.EXCEP.getId());
+		}
+		if (GlobalData.currentStationIndex <= SysConfiguration.stationNum) {
 			reqCurrentStationInfo();
 		} else {
+
 			endReqStationsInfo();
 		}
 	}
 
 	public void startReqStationsInfo() {
-		currentStationIndex = 1;
+		GlobalData.currentStationIndex = 1;
 		reqCurrentStationInfo();
 	}
 
 	public void startSynchronizeTime(byte[] timeArr) {
 		commState = STATE_SYNCH_TIME;
+		send(SYM_START);
 		send(CMD_SYNCH_TIME);
 		send(CMD_BROADCAST);
 
@@ -322,8 +360,25 @@ public class SerialComm implements /* Runnable, */SerialPortEventListener {
 		commState = STATE_NOTHING;
 	}
 
+	public Byte[] startSynchronizeTimeArr(byte[] timeArr) {
+		List<Byte> list = new ArrayList<Byte>();
+		commState = STATE_SYNCH_TIME;
+		list.add((byte) SYM_START);
+		list.add((byte) CMD_SYNCH_TIME);
+		list.add((byte) CMD_BROADCAST);
+
+		for (int i = 0; i < timeArr.length; i++) {
+			System.out.println("timeArr" + i + " " + timeArr[i]);
+			list.add(timeArr[i]);
+		}
+		list.add((byte) SYM_END);
+		commState = STATE_NOTHING;
+		return list.toArray(new Byte[] {});
+	}
+
 	public void callStaff(byte[] staffIdArr) {
 		commState = STATE_CALL_STAFF;
+		send(SYM_START);
 		send(CMD_CALL_STAFF);
 		send(CMD_BROADCAST);
 
@@ -340,19 +395,29 @@ public class SerialComm implements /* Runnable, */SerialPortEventListener {
 		staffIdArr[0] = 0;
 		callStaff(staffIdArr);
 	}
+
 	public void retreiveReaderData() {
 		commState = STATE_REQ_TIMEOUT_READER;
+		/*
+		 * commState = STATE_TEST; testCount=0; send(SYM_START);
+		 */
+		send(SYM_START);
 		send(CMD_REQ_TIMEOUT_READER);
-		send(1);//分站号
-		send(1);//读卡器号
+		send(1);// 分站号
+		send(2);// 读卡器号
 		send(SYM_END);
 		commState = STATE_WAIT_TIMEOUT_READER;
-		bigBuf=new byte[BIGBUF_SIZE]; //bigBuf用完后需要调用bigBuf=null;
-		bigBufIndex=0; 
-		
+		bigBuf = new byte[BIGBUF_SIZE]; // bigBuf用完后需要调用bigBuf=null;
+		bigBufIndex = 0;
+
 	}
+
 	public void endReqStationsInfo() {
-		currentStationIndex = 1;
+		// actv
+
+		GlobalData.currentStationIndex = 0;
+		GlobalData.currentBgActivityState=StaffManagerFrame.BackgroundActivity.STATE_TOTAL_REFRESHED;
+		staffManagerFrame.notifyActivity();
 	}
 
 	private boolean isCmd(int c) {
@@ -404,5 +469,5 @@ public class SerialComm implements /* Runnable, */SerialPortEventListener {
 				&& this.serialCommNotConnected == false
 				&& this.dataType == DATA_TYPE_NOTHING;
 	}
-	
+
 }

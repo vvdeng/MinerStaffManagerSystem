@@ -4,16 +4,6 @@
 <h1>µVision Build Log</h1>
 <h2>Project:</h2>
 D:\Keil4\workspace\card_v02\card_v02.uvproj
-Project File Date:  10/15/2013
+Project File Date:  10/17/2013
 
 <h2>Output:</h2>
-Build target 'Target 1'
-compiling main.c...
-compiling nrf24.c...
-compiling useful.c...
-linking...
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_RX_MODE_2?NRF24
-Program Size: data=72.7 xdata=0 code=1184
-creating hex file from "card_v02"...
-"card_v02" - 0 Error(s), 1 Warning(s).

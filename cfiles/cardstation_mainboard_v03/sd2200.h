@@ -12,7 +12,7 @@ sbit SCL=P4^1;
 
 #define SET_TIME_LEN 8  //年月日周时分秒空
 #define SHOW_TIME_LEN 6 //时十时个分十分个秒十秒个
-#define SEND_TIME_LEN 3 //时分秒
+#define SEND_TIME_LEN 6 //时分秒年月日
 extern uchar xdata  initTimeBuf[SET_TIME_LEN];//空年月日时分秒周
 extern uchar xdata  sendTimeBuf[SEND_TIME_LEN];
 extern uchar xdata  showTimeBuf[SHOW_TIME_LEN];

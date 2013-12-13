@@ -1,0 +1,6 @@
+"main.obj",
+"nrf24.obj",
+"useful.obj",
+"vvspi.obj" 
+TO "cardreader_send_module_v02" 
+RAMSIZE(256) 

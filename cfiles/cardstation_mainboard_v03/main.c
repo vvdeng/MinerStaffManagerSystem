@@ -11,18 +11,18 @@
 
 #define  _Nop()  _nop_()
 
-
-#define STATION_PORT_NUM 4 //每个分站最多4个端口
+#define STATION_PORT_MAXNUM 7 //每个分站最多7个端口
+//#define STATION_PORT_NUM 4 //每个分站最多4个端口
 #define CARD_INFO_BYTES 3  //每个标识卡信息3个字节
-#define POLL_COUNT 4  //保存POLLCOUNT个巡检周期的数据
-#define MAX_CALL_STAFF_COUNT 80
+#define POLL_COUNT 2  //保存POLLCOUNT个巡检周期的数据
+#define MAX_CALL_STAFF_COUNT 12
 #define STAFF_BUF_LEN (MAX_CALL_STAFF_COUNT*2+1) //呼叫时每个id两个字节 第0字节保存人数
 
 #define SPI_START 0x80
 #define SYM_END 0xFE
 #define SEG_COUNT 8    
 
-#define READER_BUF_LEN (READER_CARDNUM*CARD_INFO_BYTES+6) //第0至2字节为读卡器采集时间时分秒各1字节，第3字节为标识卡总数或其他标志含义（例如超时） ，第4字节为标识卡实际数量，最后一位为添加的分隔符， 所以要加6
+#define READER_BUF_LEN (READER_CARDNUM*CARD_INFO_BYTES+9) //第0至5字节为读卡器采集时间时分秒年月日各1字节，第6字节为标识卡总数或其他标志含义（例如超时） ，第7字节为标识卡实际数量，最后一位为添加的分隔符， 所以要加9
 #define SET_TIME_BUF_LEN 8
           
 #define   S2RI    0x01                 
@@ -76,10 +76,12 @@ sbit ledTest3=P4^3;
 
 uchar localAddress,commState1,commState2,currentReaderIndex=0,commTimeoutRetryCount,pollCount=0,staffBufIndex=0;
 uint currentBufferIndex=0,commTimeoutCount=0,commFinishedTimeCount=0,setTimeBufIndex=0;
-uchar  xdata cardsInfoArr[POLL_COUNT][STATION_PORT_NUM][READER_BUF_LEN]={0};
-uchar xdata cardPerReaderNumArr[STATION_PORT_NUM]={0};
+uint xdata totalPortCount=0;
+uchar  xdata cardsInfoArr[POLL_COUNT][STATION_PORT_MAXNUM][READER_BUF_LEN]={0};
+uchar xdata cardPerReaderNumArr[STATION_PORT_MAXNUM]={0};
 uchar xdata setTimeBuf[SET_TIME_BUF_LEN]={0};
 uchar xdata staffBuf[STAFF_BUF_LEN]={0};
+uchar xdata portCountArr[STATION_PORT_MAXNUM]={0};
 bit statesSentFlag=0,commTimeoutFlag=0,commFinishedFlag=0,totalRefreshedFlag=1,commTimeoutActionFlag=0,commFinishedActionFlag=0,setTimeFlag=0,staffFlag=0;
 uchar xdata exramArr[4000];
 
@@ -162,11 +164,12 @@ void sendCmdInstance(uchar ldata){
 #define COMM_STATE_REQ_TIMEOUT_CARD_ADDR 9
 #define COMM_STATE_REQ_TIMEOUT_CARD_ADDR_END 10
 #define COMM_STATE_REQ_TIMEOUT_CARD 11
+//命令格式定义为0x1xxx 000x 
 #define CMD_REQ_STATE 0x80
 #define CMD_SYNCH_TIME 0x81
-#define CMD_CALL_STAFF 0x84
-#define CMD_REQ_TIMEOUT_CARD 0x85
-#define CMD_REQ_TIMEOUT_STATION 0x88
+#define CMD_CALL_STAFF 0x90
+#define CMD_REQ_TIMEOUT_CARD 0x91
+#define CMD_REQ_TIMEOUT_STATION 0xa0
 #define CMD_BROADCAST 0x01
 
 #define COMM_STATE2_NOTHING 0
@@ -174,10 +177,13 @@ void sendCmdInstance(uchar ldata){
 #define COMM_STATE2_REQ_READER_STATE_STARTED 2 
 #define COMM_STATE2_REQ_TIMEOUT_CARD 3
 #define CMD_REQ_READER_STATE 0x80
-#define SYM_BEGIN 0xF0
+//分隔符号定义为  0x1xxx YYYx YYY不能为全0
+#define SYM_BEGIN 0xFD
 #define SYM_END 0xFE
-#define DATA_END 0xFE
-#define SYM_DELIMITER 0xFD
+#define STATION_DATA_DELIMN 0xf8
+#define READER_DATA_DELIMN 0xf9
+//#define DATA_END 0xFE
+//#define SYM_DELIMITER 0xFD
 #define SYS_TIMEOUT 0x60 //SYS_TIMEOUT必须大于80小于128 80以下表示采集人数
 uchar tempReaderNo=0;
 void ssio(void)
@@ -204,8 +210,9 @@ interrupt 4
 			}
 		
 		}
-*/		
-		if((SBUF&0x82)==0x80){
+*/	
+		//命令格式为0x1xxx000x
+		if((SBUF&0x8E)==0x80){
 			
 		 	if(SBUF==CMD_REQ_STATE){
 				commState1=COMM_STATE_REQ_STATE_WAIT_ADDR;
@@ -225,7 +232,8 @@ interrupt 4
 
 		else if((commState1==COMM_STATE_REQ_STATE_WAIT_ADDR))
 		{
-			if(SBUF==localAddress){
+	//		if(SBUF==localAddress){
+			if(SBUF==configArr[0]){
 				commState1=COMM_STATE_REQ_STATE_WAIT_ADDR_END;
 				
 			}else{
@@ -273,7 +281,8 @@ interrupt 4
 			}
 		}
 		else if(commState1==COMM_STATE_REQ_TIMEOUT_CARD_STATION_ADDR){
-			if(SBUF==1)//测试用，硬编码分站地址
+	//		if(SBUF==1)//测试用，硬编码分站地址
+			if(SBUF==configArr[0])
 			{
 				commState1=COMM_STATE_REQ_TIMEOUT_CARD_ADDR;
 			}
@@ -288,8 +297,10 @@ interrupt 4
 				RS_485_2=RS485_T;
 				IE2=0;
 				sendDataDown2(CMD_REQ_TIMEOUT_CARD);
-			//	sendDataDown2(1); //测试用，硬编码分站地址
-				sendDataDown2(1);//发送读卡器编号 应该为tempReaderNo
+		//	//	sendDataDown2(1); //测试用，硬编码分站地址
+		//		sendDataDown2(1);//发送读卡器编号 应该为tempReaderNo
+				sendDataDown2(tempReaderNo);//发送读卡器编号
+				sendDataDown2(configArr[0]);//发送分站编号
 			//	sendDataDown2(SYM_END);
 				IE2=1;
 				RS_485_2=RS485_R;
@@ -333,7 +344,7 @@ void S2INT() interrupt 8
         else if(commState2==COMM_STATE2_REQ_READER_STATE_STARTED){
 			if((S2BUF==SYM_END)||(currentBufferIndex>=READER_BUF_LEN-1)){
 				commState2=COMM_STATE2_NOTHING;
-				cardsInfoArr[pollCount][currentReaderIndex][currentBufferIndex++]=SYM_DELIMITER;
+				cardsInfoArr[pollCount][currentReaderIndex][currentBufferIndex++]=STATION_DATA_DELIMN;
 				commFinishedFlag=1;
 				commFinishedActionFlag=1;
 				
@@ -474,6 +485,10 @@ void sendCardsInfo(){
 	 	while(TI!=1);
 	 	TI=0; 
 	} 
+	//发送地址码   地址码最大不超过32
+	SBUF=configArr[0]%100;
+	while(TI!=1);
+	TI=0; 
 	if(pollCount!=1){ //借用pollCount来作为判断是否采集完成和可以采集的标志
 	 	SBUF=COMM_NOTREADY;	
 		while(TI!=1);
@@ -491,14 +506,15 @@ void sendCardsInfo(){
 		 	TI=0;
 		*/
 		
-			for(m=0;m<STATION_PORT_NUM;m++){
+	//		for(m=0;m<STATION_PORT_NUM;m++){
+			for(m=0;m<configArr[1];m++){
 		    	//发送端口号，以1开始
 			 	SBUF=m+1;	
 			 	while(TI!=1);
 			 	TI=0; 
 				for(n=0;n<READER_BUF_LEN;n++) 
 				{   
-					if(cardsInfoArr[k][m][n]==SYM_DELIMITER){
+					if(cardsInfoArr[k][m][n]==STATION_DATA_DELIMN){
 						break;
 					}
 					SBUF=cardsInfoArr[k][m][n];	
@@ -506,7 +522,7 @@ void sendCardsInfo(){
 			    	TI=0; 
 			 	}
 				//防止cardsInfoArr丢失SYM_DELIMITER字节，所以在遍历完后统一处理。
-				SBUF=SYM_DELIMITER;	
+				SBUF=STATION_DATA_DELIMN;	
 			    while(TI!=1);
 			    TI=0; 
 	
@@ -521,10 +537,18 @@ void sendCardsInfo(){
 	 RS_485_1=RS485_R;
 	 ES=1;
 }
+void clearPortCount(){
+	uchar m;
+	totalPortCount=0;
+	for (m=0;m<STATION_PORT_MAXNUM;m++){
+		 portCountArr[m]=0;
+	}
+	
+}
 void commAction(){
 	
 	if((commState1==COMM_STATE_REQ_STATE)/*&&totalRefreshedFlag==1*/){
-
+		//第一次请求时缓冲区为空，sendCardSInfo不会发送任何有效数据
 		sendCardsInfo();
 		commState1=COMM_STATE_NOTHING;
 		statesSentFlag=1;//为1 则开始巡检读卡器收集到的信息
@@ -533,12 +557,23 @@ void commAction(){
 void setCurrentReaderTimeout(){
 	
 	cardsInfoArr[pollCount][currentReaderIndex][currentBufferIndex++]=SYS_TIMEOUT;//SYS_TIMEOUT必须大于80小于128 80以下表示采集人数
-	cardsInfoArr[pollCount][currentReaderIndex][currentBufferIndex++]=SYM_DELIMITER;
+	cardsInfoArr[pollCount][currentReaderIndex][currentBufferIndex++]=STATION_DATA_DELIMN;
+	portCountArr[currentReaderIndex]=0;
+	totalPortCount+= portCountArr[currentReaderIndex];
 	
 }
 void endGetReaderInfo(){
    commState2=COMM_STATE2_NOTHING;
    totalRefreshedFlag=1;
+   	if(inSetting==0){
+		initDisplayBuf();
+		displayBuf[0]=12;//字符"C"
+		displayBuf[5]=totalPortCount/100;
+		displayBuf[6]=(totalPortCount%100)/10;
+		displayBuf[7]=totalPortCount%10;
+		sendDisplay();
+	}
+	clearPortCount();
    pollCount++; //借用pollCount来作为判断是否采集完成和可以采集的标志
 }
 void getCurrentReaderInfo(){
@@ -580,7 +615,8 @@ void getNextReaderInfo(){
 
 	commTimeoutRetryCount=0;
 	currentReaderIndex++;
-	if(currentReaderIndex<STATION_PORT_NUM)
+//	if(currentReaderIndex<STATION_PORT_NUM)
+	if(currentReaderIndex<configArr[1])
 	{
 		getCurrentReaderInfo();
 	}
@@ -656,13 +692,15 @@ void Timer0_isr(void) interrupt 1 using 1
 
 }
 void processReceivedData(){
-
+	  portCountArr[currentReaderIndex]=  cardsInfoArr[pollCount][currentReaderIndex][7];
+	  totalPortCount+= portCountArr[currentReaderIndex];
 }
 void testInit(){
 	uint k,m,n;
 	for(k=0;k<POLL_COUNT;k++)
 	{
-		for(m=0;m<STATION_PORT_NUM;m++){
+	//	for(m=0;m<STATION_PORT_NUM;m++){
+		for(m=0;m<configArr[1];m++){
 			for(n=0;n<READER_BUF_LEN;n++)
 			{
 				cardsInfoArr[k][m][n]=0x00;
@@ -677,20 +715,20 @@ void pm25Test(){
 	g_fFlashOK=0;
 	FlashCheckID();
 	if(g_fFlashOK==1){
-	  ledTest1=1;
+//	  ledTest1=1;
 	}
 	else{
-	  ledTest1=0;
+//	  ledTest1=0;
 	}
 	{
-		uchar a=0x12345678,b=0;
-		FlashWrite(0x00,4,&a);
-		FlashRead(0x00,4,&b);
+		uchar a=12,b=0;
+		FlashWrite(0x00,1,&a);
+		FlashRead(0x00,1,&b);
 		if(a==b){
-		  ledTest2=1;
+		  ledTest2=0;
 		}
 		else{
-		  ledTest2=0;
+		  ledTest2=1;
 		}
 	}
 	while(1);
@@ -820,13 +858,15 @@ void main() {
 		//	synTime();
 			resetInitTimeBuf(setTimeBuf);
 			dsReadTime();
-			initDisplayBuf();
-			
-			for(m=0;m<SHOW_TIME_LEN;m++){
-				displayBuf[m]=showTimeBuf[m];
+			if(inSetting==0){
+				initDisplayBuf();
+				
+				for(m=0;m<SHOW_TIME_LEN;m++){
+					displayBuf[m+2]=showTimeBuf[m];
+				}
+				
+				sendDisplay();
 			}
-			
-			sendDisplay();
 			commState1=COMM_STATE_NOTHING;
 		    setTimeFlag=0;
 		}

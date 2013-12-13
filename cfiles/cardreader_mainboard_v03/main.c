@@ -8,27 +8,33 @@
 #include "pm25.h"
 sfr P3M1=0xb1;
 sfr P3M0=0xb2;
+sfr P2M1=0x95;
+sfr P2M0=0x96;
+sbit alarmIO=P2^0;
 sbit ledTest2=P3^5;
 sbit ledTest1=P3^4;
 sbit RS_485=P3^6;
 #define RS485_R 1 
 #define RS485_T 0
-uint setTimeBufIndex=0;
-uchar  xdata callStaffBuf[CALL_STAFF_BUF_LEN]={0};
+uint  setTimeBufIndex=0;
+uchar pSationAddr=0;
+uchar   xdata callStaffBuf[CALL_STAFF_BUF_LEN]={0};
 bit callStaffFlag=0; //测试时设置为1
 bit queryCardsFlag=1;
 bit setTimeFlag=0;
 bit upTimeoutFlag=0;
 bit saveCardsFlag=0;
 bit staFlag=0;
-uint upTimeoutCount=0;
-uint displayCardId=0,displayCardIndex=0;
+#define CANCEL_ALERT_FLAG 0
+#define MAX_ALARM_COUNT 200000
+uint   upTimeoutCount=0;
+uint   displayCardId=0,displayCardIndex=0;
 uchar xdata queryCardsArr[CARDS_ARR_LEN+2]={0};//第0字节存储包含呼叫和欠压的标识卡总数 第1字节存储实际上识别到的标识卡数量
 
 uchar xdata setTimeBuf[SET_TIME_BUF_LEN]={0};
-uchar queryCardsLen=0;queryCardIndex=0,callStaffBufIndex=0;
-
-uchar commState1;commState2;
+uchar  queryCardsLen=0;queryCardIndex=0,callStaffBufIndex=0;
+ulong alarmCount=0 ;
+uchar  commState1,commState2;
 
 void sendCardsInfo();
 void sendDataUp(uchar dat){
@@ -72,8 +78,11 @@ void testInit(){
 		callStaffBuf[m]=0;
 	}
 }
-#define SYM_BEGIN 0xF0
-#define SYM_END 0xFE  //0x1111 1110 为方便串口处理 区分结束符和命令，约定格式为0x1xxx xx0x 
+//分隔符号定义为  0x1xxx YYYx YYY不能为全0
+#define SYM_BEGIN 0xFD
+#define SYM_END 0xFE
+#define STATION_DATA_DELIMN 0xF8
+#define READER_DATA_DELIMN 0xF9 
 #define DATA_END 0xFF
 #define COMM_STATE_NOTHING 0
 #define COMM_STATE_REQ_STATE_WAIT_ADDR 1
@@ -84,11 +93,13 @@ void testInit(){
 #define COMM_STATE_CALL_STAFF_READY 6
 #define COMM_STATE_TIMEOUT_REQ_STATE 7
 #define COMM_STATE_REQ_TIMEOUT_CARD_ADDR 8
-#define COMM_STATE_REQ_TIMEOUT_CARD_TRANS 9
+#define COMM_STATE_REQ_TIMEOUT_CARD_STATION_ADDR 9
+#define COMM_STATE_REQ_TIMEOUT_CARD_TRANS 10
+//命令格式为0x1xxx000x
 #define CMD_REQ_STATE 0x80  //0x1000 000
 #define CMD_SYNCH_TIME 0x81
-#define CMD_CALL_STAFF 0x84
-#define CMD_REQ_TIMEOUT_CARD 0x85
+#define CMD_CALL_STAFF 0x90
+#define CMD_REQ_TIMEOUT_CARD 0x91
 #define CMD_BROADCAST 0x01
 #define COMM_STATE2_NOTHING 0
 #define COMM_STATE2_REQ_READER_STATE 1
@@ -122,7 +133,8 @@ interrupt 4
 			}
 		}
 	*/	
-		if((SBUF&0x82)==0x80){ //结束符为0x1111 1110 为方便串口处理 区分结束符和命令，约定格式为0x1xxx xx0x 
+		//命令格式为0x1xxx000x
+		if((SBUF&0x8e)==0x80){  
 			
 		 	if(SBUF==CMD_REQ_STATE){
 				
@@ -149,7 +161,7 @@ interrupt 4
 		 if(commState1==COMM_STATE_REQ_STATE_WAIT_ADDR){
 				if((configArr[CONFIG_ADDR])==SBUF){ //分站巡检时地址从0开始，实际地址码从1开始
 		//		if(1==SBUF){ //分站巡检时地址从0开始，实际地址码从1开始
-				ledTest1=~ledTest1;	
+		//		ledTest1=~ledTest1;	
 					commState1=COMM_STATE_REQ_STATE;
 			//		if(saveCardsFlag==0){		 //丢弃掉尚未完成保存的当前轮次数据
 						sendDataDown(CMD_REQ_CARDS);
@@ -188,14 +200,18 @@ interrupt 4
 			}
 		}
 		else if(commState1==COMM_STATE_REQ_TIMEOUT_CARD_ADDR){
-			if(SBUF==1){ //测试用，硬编码读卡器地址
-				commState1=COMM_STATE_REQ_TIMEOUT_CARD_TRANS;
+		//	if(SBUF==1){ //测试用，硬编码读卡器地址
+			if((configArr[CONFIG_ADDR])==SBUF){
+				commState1=COMM_STATE_REQ_TIMEOUT_CARD_STATION_ADDR; 
+		//		commState1=COMM_STATE_REQ_TIMEOUT_CARD_TRANS;
 				  
 			}
-			
-		
+				
 		}
-               
+		else if(commState1==COMM_STATE_REQ_TIMEOUT_CARD_STATION_ADDR){
+				pSationAddr=SBUF;
+				commState1=COMM_STATE_REQ_TIMEOUT_CARD_TRANS;				  				
+		}               
 	}
 	else if(TI){                       
 		TI=0;
@@ -320,8 +336,12 @@ void EX0_ISR (void) interrupt 0 //外部中断0服务函数
 	irExProcess();
 }
 void init(){
+	P2M1=0x00;
+	P2M0=0x01;
 	P3M1=0x00;
 	P3M0=0x40;
+	alarmIO=0;
+
 	RS_485=RS485_R;
 	commState1=COMM_STATE_NOTHING;
 	commState2=COMM_STATE2_NOTHING;
@@ -361,7 +381,7 @@ void init(){
  
 	retreiveConfig();
 	
-	
+	resetFlash();
 
  	IPH=0x10;
 	IP=0x10;//设置串口1中断优先级为髙优先级
@@ -369,8 +389,27 @@ void init(){
 	EA = 1;
 
 }
+
+#define FLASH_COUNT_LIMIT 30
+#define COUNT_POS 0x04
+#define READ_COUNT_POS 0x08
+#define SECTOR_SIZE 0x1000
+#define FLASH_BUF_LEN 300
+#define DEFAULT_DATA_POS 0x08
+#define FIRST_DATA_POS 0x1000
+#define SEC_DATA_END 0xfe
+#define ORIGINAL_DATA 0xff
+uchar flashCount=0;
+uchar flashReadCount=0;
+ulong dataPos;
+uchar queryCardsCount=0;
+uchar xdata flashBuf[FLASH_BUF_LEN]={0};
+/*
+uchar timeTest=1;
+uchar a=18,b=0;
+ulong addr=0x0006;
 void pm25Test(){
-	g_fFlashOK=0;
+	g_fFlashOK=1;
 	FlashCheckID();
 	if(g_fFlashOK==1){
 	  ledTest1=0;
@@ -378,80 +417,127 @@ void pm25Test(){
 	else{
 	  ledTest1=1;
 	}
-	{
-		uchar a=0x12345678,b=0;
-		FlashWrite(0x00,4,&a);
-		FlashRead(0x00,4,&b);
-		if(a==b){
-		  ledTest1=0;
+	
+	
+		
+		eraseSector(addr);
+		  
+		
+		FlashWrite(addr,1,&a);
+	
+		FlashRead(addr,1,&b);
+
+//		eraseSector2(addr);
+		  
+//		delayMs(2000);
+//		writeMem(addr,a);
+	
+//		b=readMem(addr);
+		if(18==b){
+		  ledTest2=0;
 		}
 		else{
-		  ledTest1=1;
+		  ledTest2=1;
 		}
-	}
-	while(1);
-}
-#define FLASH_COUNT_LIMIT 30
-#define COUNT_POS 0x04
-#define SECTOR_SIZE 300
-#define DEFAULT_DATA_POS 0x08
-#define FIRST_DATA_POS 0x100
-#define SEC_DATA_END 0xff
-ushort flashCount=0;
-ulong dataPos;
-uchar queryCardsCount=0;
-uchar xdata flashBuf[SECTOR_SIZE]={0};
-
-void saveDataToFlash(){
-	uchar n=0;
-	ushort tempCount=0;
-	saveCardsFlag=1;
 	
-    FlashRead(COUNT_POS,2,&flashCount);
-	if(flashCount==0||flashCount==0xffff){
+//	while(1);
+}
+*/
+void saveDataToFlash(){
+	uint n=0;
+	uint tempCount=0;
+	saveCardsFlag=1;
+
+    FlashRead(COUNT_POS,1,&flashCount);
+	FlashRead(READ_COUNT_POS,1,&flashReadCount);
+	if(flashCount==0||flashCount==0xff){
 		flashCount=0;
-	}else if(flashCount>FLASH_COUNT_LIMIT){
-		FlashWrite(COUNT_POS,2,&flashCount);	//可注释
+	}else if(flashCount>=FLASH_COUNT_LIMIT){
+//		flashCount=FLASH_COUNT_LIMIT;
+//		FlashWrite(COUNT_POS,1,&flashCount);	//可注释
 		return;
 	}
 
 	queryCardsCount=queryCardsArr[0]*3;
+	      	
+	
 	if(queryCardsCount>0){
-	      	ledTest2=~ledTest2;
-	}
-	if(queryCardsCount>0){
+		ledTest2=~ledTest2;
 		dsReadTime();
 		for(n=0;n<SEND_TIME_LEN;n++)
 		{           
 			flashBuf[tempCount++]=sendTimeBuf[n];
 		}
-		for(n=0;n<queryCardsCount+2;n++) //加2是因为要发送第0位总数和第1位实际数量
+		
+
+/*		
+		flashBuf[0]=7;
+		flashBuf[1]=7;
+		flashBuf[2]=timeTest;
+		timeTest++;
+		tempCount=3;
+*/		for(n=0;n<queryCardsCount+2;n++) //加2是因为要发送第0位总数和第1位实际数量
 		{   
 	
 			flashBuf[tempCount++]=queryCardsArr[n];	
 	 	}
 		flashBuf[tempCount++]=SEC_DATA_END;
-		FlashWrite((FIRST_DATA_POS+flashCount*SECTOR_SIZE),SECTOR_SIZE,&flashBuf);
+		eraseSector(FIRST_DATA_POS+flashCount*SECTOR_SIZE);
+		FlashWrite((ulong)(FIRST_DATA_POS+flashCount*SECTOR_SIZE),FLASH_BUF_LEN,&flashBuf);
 		flashCount++;
-		FlashWrite(COUNT_POS,2,&flashCount);
+		eraseSector(0);
+		FlashWrite(READ_COUNT_POS,1,&flashReadCount);
+		FlashWrite(COUNT_POS,1,&flashCount);
 		
 	}
 	saveCardsFlag=0;
 
 }
+void clearFlashBuf(){
+	uint m;
+	for(m=0;m<FLASH_BUF_LEN;m++){
+		flashBuf[m]=0;
+	}
+}
+/*
+uchar flashCountTest=0;
+void testFlash(){
+	  FlashRead(COUNT_POS,1,&flashCountTest);
+	if(flashCountTest==0xff){
+		flashCountTest=0;
+	}
+	flashCountTest++;
+		eraseSector(0);
+		FlashWrite(COUNT_POS,1,&flashCountTest);
+		flashCountTest=8;
+		flashBuf[0]=7;
+		flashBuf[1]=7;
+		flashBuf[2]=7;
+		flashBuf[3]=SEC_DATA_END;
+		eraseSector((ulong)FIRST_DATA_POS);
+		FlashWrite((ulong)(FIRST_DATA_POS),30,&flashBuf);
+}
+*/
+
 void main(){
 
 	uint m,n=0;
-	flashCount=0;
-	FlashWrite(COUNT_POS,2,&flashCount);//测试用
+	
+//	FlashWrite(COUNT_POS,1,&flashCount);//测试用
 	ledTest1=0;
 	 ledTest2=0;
 	testInit();
 	init();
 	dsInit();
 
+//	flashCount=0;
+//	eraseSector(0);
+//	FlashWrite(COUNT_POS,1,&flashCount);
+
+//	testFlash();
 
 //	pm25Test();
+
 	while(1){
 	//	ledTest2=~ledTest2;
 	/*	delayMs(7000);
@@ -472,7 +558,13 @@ void main(){
 	*/
 		processSettingIfNecessary();
 		if(callStaffFlag==1){ //
-			
+		//	alarmIO=~alarmIO;
+		   //待判断取消呼叫
+		   	if(callStaffBuf[0]!=CANCEL_ALERT_FLAG)
+			{
+				alarmIO=1;
+				alarmCount=MAX_ALARM_COUNT;
+			}
 		//	ledTest2=~ledTest2;
 			
 			CS_SEND=0;
@@ -491,60 +583,120 @@ void main(){
 		//	ledTest2=~ledTest2;
 			resetInitTimeBuf(setTimeBuf);
 			dsReadTime();
-			initDisplayBuf();
-			
-			for(m=0;m<SHOW_TIME_LEN;m++){
-				displayBuf[m]=showTimeBuf[m];
+			if(inSetting==0){
+				initDisplayBuf();
+				
+				for(m=0;m<SHOW_TIME_LEN;m++){
+					displayBuf[m]=showTimeBuf[m];
+				}
+				
+				sendDisplay();
 			}
-			
-			sendDisplay();
 			commState1=COMM_STATE_NOTHING;
 			setTimeFlag=0;
 		}
 
 		if(commState1==COMM_STATE_REQ_TIMEOUT_CARD_TRANS){
+			upTimeoutFlag=1; //暂停计数
 			 RS_485=RS485_T;
 			 ES=0;
-/*			 sendDataUp2(1);
-			 sendDataUp2(1);
-			 sendDataUp2(1);
-			 sendDataUp2(1);
-			 sendDataUp2(1);
-			 sendDataUp2(SYM_END);
-*/			 
-			 FlashRead(FIRST_DATA_POS,SECTOR_SIZE,&flashBuf);
-			 m=0;
+		//	 sendDataUp2(1);
+		//	 sendDataUp2(1);
+		//	 sendDataUp2(1);
+		//	 sendDataUp2(1);
+		//	 sendDataUp2(1);
+		//	 sendDataUp2(SYM_END);
+			  
+			 sendDataUp2(SYM_BEGIN);
+			  FlashRead(READ_COUNT_POS,1,&flashReadCount);
+			  sendDataUp2(flashReadCount);
+			 FlashRead(COUNT_POS,1,&flashCount);
+			 sendDataUp2(flashCount);	//总次数
 			
-			 while(flashBuf[m]!=SEC_DATA_END&&m<SECTOR_SIZE)
-			 {
-			 	sendDataUp2(flashBuf[m++]);
+		//	 sendDataUp2(SYM_END);
+		/*	 clearFlashBuf();
+			 FlashRead((ulong)(FIRST_DATA_POS),FLASH_BUF_LEN,&flashBuf);
+			 	 	m=0;
+				while(flashBuf[m]!=SEC_DATA_END&&m<FLASH_BUF_LEN)
+			 	{
+			 		sendDataUp2(flashBuf[m++]);
 				
+			 	}
+				sendDataUp2(READER_DATA_DELIMN);
+		  */
+			 while(flashCount>0){
+			// 	clearFlashBuf();
+				sendDataUp2(flashCount);	//序号
+				sendDataUp2(pSationAddr);   //所属分站编号
+	/*		 	FlashRead((FIRST_DATA_POS+flashCount*SECTOR_SIZE),SECTOR_SIZE,&flashBuf);
+			 	m=0;
+			
+			 	while(flashBuf[m]!=SEC_DATA_END&&flashBuf[m]!=ORIGINAL_DATA&&m<SECTOR_SIZE)
+			 	{
+			 		sendDataUp2(flashBuf[m++]);
+				
+			 	}
+	*/			sendDataUp2(READER_DATA_DELIMN);
+			 	flashCount--;
+				//为减少等待时间，（eraseSector至少要等50ms）考虑新建变量temp=flashCount，每传输10次再回写temp替代flashCount
+		//		eraseSector(0);
+		//		FlashWrite(COUNT_POS,1,&flashCount);
+		//		flashReadCount=(flashReadCount+1)%128;
+		//		FlashWrite(READ_COUNT_POS,1,&flashReadCount);
 			 }
-			 
-
+		   
 			 sendDataUp2(SYM_END);
 			 ES=1;
 			 RS_485=RS485_R;
-		//	   ledTest1=~ledTest1;
+			 ledTest1=~ledTest1;
+			 //尝试在传输完成后再回写flashCount，而不是每次都回写
+				eraseSector(0);
+				FlashWrite(COUNT_POS,1,&flashCount);
+				flashReadCount=(flashReadCount+1)%128;
+				FlashWrite(READ_COUNT_POS,1,&flashReadCount);
 			   commState1= COMM_STATE_NOTHING;
+			   upTimeoutFlag=0;//恢复计数
 		}
-		if(staFlag==1){
+		if(staFlag==1&&inSetting==0){
 			
 			initDisplayBuf();
 			if(queryCardsArr[0]==queryCardsArr[1]){
-				displayBuf[0]=0x0c;
+				displayBuf[0]=0x0c;	 //"C"
 				displayBuf[4]=queryCardsArr[1]/10;
 				displayBuf[5]=queryCardsArr[1]%10;
 			}
 			else{
-				displayBuf[0]=0x0e;
-				displayCardIndex=(queryCardsArr[0]-queryCardsArr[1]-1)*3+2;
-				displayCardId=(((uint)queryCardsArr[displayCardIndex+1])<<7)+queryCardsArr[displayCardIndex+2];
-			
-				displayBuf[2]=displayCardId/1000;
-				displayBuf[3]=(displayCardId%1000)/100;
-				displayBuf[4]=(displayCardId%100)/10;
-				displayBuf[5]=displayCardId%10;
+				uchar k;
+				char l=queryCardsArr[1];
+				k=(queryCardsArr[0]-1)*3+2;
+				while(l>=0&&k>0){
+					if((queryCardsArr[k]&SIGN_CARD_ALERT)==SIGN_CARD_ALERT) //0为普通定位 1为呼叫 2为欠压
+					{
+						break;
+					}
+					else{
+						k=k-3;
+						l--;
+					}
+				}
+				if(l>=0){
+					alarmCount=MAX_ALARM_COUNT;
+					alarmIO=1;
+					displayBuf[0]=17; //"H"
+			//		displayCardIndex=(queryCardsArr[0]-queryCardsArr[1]-1)*3+2;
+			//		displayCardId=(((uint)queryCardsArr[displayCardIndex+1])<<7)+queryCardsArr[displayCardIndex+2];
+					displayCardId=(((uint)queryCardsArr[k+1])<<7)+queryCardsArr[k+2];
+					displayBuf[2]=displayCardId/1000;
+					displayBuf[3]=(displayCardId%1000)/100;
+					displayBuf[4]=(displayCardId%100)/10;
+					displayBuf[5]=displayCardId%10;
+				}
+				else{
+					//代码需重构 与上面queryCardsArr[0]==queryCardsArr[1]后代码重复
+					displayBuf[0]=0x0c;	 //"C"
+					displayBuf[4]=queryCardsArr[1]/10;
+					displayBuf[5]=queryCardsArr[1]%10;
+				}
 			}
 	//		resetQueryCardArr();
 			sendDisplay();	
@@ -558,6 +710,12 @@ void main(){
 			commState1=COMM_STATE_TIMEOUT_REQ_STATE;
 			sendDataDown(CMD_REQ_CARDS);
 			upTimeoutFlag=0;
+		}
+		if(alarmCount>=2){
+			alarmCount--;
+		}
+		else{
+		   alarmIO=0;
 		}
 	/*	if(queryCardsFlag==1){
 			CS_RECV=0;

@@ -15,8 +15,9 @@ public class SubDevice {
 	public static final int STATE_DC=2;
 
 	private Long id;
+	private Integer deviceId;
 	private String name;
-	private Integer state;
+	private Integer state=0;
 	private Long typeId;
 	private String type;
 	private Long regionId;
@@ -31,6 +32,13 @@ public class SubDevice {
 	public void setId(Long id) {
 		this.id = id;
 	}
+	@Column(name="device_id")
+	public Integer getDeviceId() {
+		return deviceId;
+	}
+	public void setDeviceId(Integer deviceId) {
+		this.deviceId = deviceId;
+	}
 	@Column(name="name")
 	public String getName() {
 		return name;
@@ -38,7 +46,7 @@ public class SubDevice {
 	public void setName(String name) {
 		this.name = name;
 	}
-	@Column(name="state")
+	@Column(name="state",updatable=false)
 	public Integer getState() {
 		return state;
 	}
@@ -52,6 +60,7 @@ public class SubDevice {
 	public void setTypeId(Long typeId) {
 		this.typeId = typeId;
 	}
+
 	@Column(name="type")
 	public String getType() {
 		return type;

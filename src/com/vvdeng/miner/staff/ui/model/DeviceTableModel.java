@@ -1,16 +1,19 @@
-package com.vvdeng.miner.staff.ui.tablemodel;
+package com.vvdeng.miner.staff.ui.model;
 
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import com.vvdeng.miner.constant.StationCommState;
+import com.vvdeng.miner.staff.entity.SubDevice;
+
 public class DeviceTableModel extends AbstractTableModel {
     public static final String[] HEADER={"±àºÅ","id","Ãû³Æ","×´Ì¬"};
-	private List<Object[]> deviceList;
-	public DeviceTableModel(List<Object[]> deviceList){
+	private List<SubDevice> deviceList;
+	public DeviceTableModel(List<SubDevice> deviceList){
     	this.deviceList=deviceList;
     }
-	public void setModel(List<Object[]> deviceList){
+	public void setModel(List<SubDevice> deviceList){
 		this.deviceList=deviceList;
 	}
 	@Override
@@ -28,13 +31,25 @@ public class DeviceTableModel extends AbstractTableModel {
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		// TODO Auto-generated method stub
-		if(columnIndex==0){
+		SubDevice subDevice=deviceList.get(rowIndex);
+		switch (columnIndex) {
+		case 0:
 			return rowIndex+1;
+		case 1:
+			return subDevice.getId();
+		case 2:
+			return subDevice.getName();
+		case 3:
+			return StationCommState.values()[subDevice.getState()].getDesc();
+		
+		
 		}
-		return deviceList.get(rowIndex)[columnIndex-1];
+		
+		return "";
 	}
 	@Override
 	public String getColumnName(int index){
 		return HEADER[index];
 	}
+	public static Integer testCount=0;
 }

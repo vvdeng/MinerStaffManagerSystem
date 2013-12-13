@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
@@ -39,14 +40,17 @@ import org.jdesktop.swingx.JXDatePicker;
 
 import com.vvdeng.miner.staff.entity.InfoItem;
 import com.vvdeng.miner.staff.entity.Staff;
+import com.vvdeng.miner.staff.filter.StaffFilter;
 import com.vvdeng.miner.staff.interfaces.DepTreeVisitable;
 import com.vvdeng.miner.staff.utils.SysConfiguration;
 import com.vvdeng.miner.staff.utils.UIUtil;
 import com.vvdeng.miner.staff.utils.Util;
 
 public class StaffInfoDialog extends JDialog implements DepTreeVisitable {
-	public StaffInfoDialog(final StaffManagerFrame owner, final Staff staff) {
+	public StaffInfoDialog( StaffManagerFrame owner,  Staff pStaff) {
 		super(owner, "员工基本信息", true);
+		this.owner=owner;
+		this.staff=pStaff;
 		setIconImage(SysConfiguration.sysIcon);
 		setSize(WIDTH, HEIGHT);
 		UIUtil.setCenterPositoin(owner, this);
@@ -193,7 +197,7 @@ public class StaffInfoDialog extends JDialog implements DepTreeVisitable {
 				if(!checkFileds()){
 					return;
 				}
-				Long cardId=Long.parseLong(cardIdTxt.getText());
+				Integer cardId=Integer.parseInt(cardIdTxt.getText());
 				Long workId = Long.parseLong(workIdTxt.getText());
 				String name = nameTxt.getText();
 				int sex = maleBtn.isSelected() ? 0 : 1;
@@ -237,16 +241,16 @@ public class StaffInfoDialog extends JDialog implements DepTreeVisitable {
 				
 				if(staff!=null){
 					staff.refresh(cardId,workId, name, sex, birthDate, certificateNo, eduLevelId, eduLevel, phone, address, professionId, profession, departmentId,dep1Id,dep2Id,dep3Id, department, clazzId, clazz, imageBlob);
-					owner.getStaffDAO().update(staff);
+					StaffInfoDialog.this.owner.getStaffDAO().update(staff);
 				}else{
 				Staff newStaff = new Staff(cardId,workId, name, sex, birthDate,
 						certificateNo, eduLevelId, eduLevel, phone, address,
 						professionId, profession, departmentId,dep1Id,dep2Id,dep3Id, department,
 						clazzId, clazz, imageBlob);
-				owner.getStaffDAO().save(newStaff);
+				StaffInfoDialog.this.owner.getStaffDAO().save(newStaff);
 				}
 				JOptionPane.showMessageDialog(StaffInfoDialog.this, "保存成功！");
-				owner.refreshStaffInfoTable();
+				StaffInfoDialog.this.owner.refreshStaffInfoTable();
 			}
 		});
 		JButton delBtn = UIUtil.makeButton("清空", null, new ActionListener() {
@@ -350,7 +354,7 @@ public class StaffInfoDialog extends JDialog implements DepTreeVisitable {
 			eduCombo.setSelectedItem(new InfoItem(staff.getEduLevelId()));
 			depTxt.setText(staff.getDepartment());
 			departmentId=staff.getDepartmentId();
-			workTypeCombo.setSelectedItem(new InfoItem(staff.getWorkId()));
+			workTypeCombo.setSelectedItem(new InfoItem(staff.getProfessionId()));
 			clazzCombo.setSelectedItem(new InfoItem(staff.getClazzId()));
 			phoneTxt.setText(staff.getPhone());
 			addrTxt.setText(staff.getAddress());
@@ -429,6 +433,15 @@ public class StaffInfoDialog extends JDialog implements DepTreeVisitable {
 			JOptionPane.showMessageDialog(StaffInfoDialog.this, "标识卡号不能为空");
 			return false;
 		}
+		if(!Util.checkDigit(cardIdTxt.getText())){
+			JOptionPane.showMessageDialog(StaffInfoDialog.this, "标识卡号格式不正确");
+			return false;
+		}
+		else if(Integer.parseInt(cardIdTxt.getText().trim())>8000){
+			JOptionPane.showMessageDialog(StaffInfoDialog.this, "标识卡号范围为（0-8000）");
+			return false;
+		}
+		
 		if(workIdTxt.getText().isEmpty()){
 			JOptionPane.showMessageDialog(StaffInfoDialog.this, "工号不能为空");
 			return false;
@@ -447,6 +460,12 @@ public class StaffInfoDialog extends JDialog implements DepTreeVisitable {
 		}
 		if(!phoneTxt.getText().isEmpty()&&!Util.checkDigit(phoneTxt.getText())){
 			JOptionPane.showMessageDialog(StaffInfoDialog.this, "电话号码输入格式不正确");
+			return false;
+		}
+		
+		Long staffId=owner.getStaffDAO().findByCardId(Integer.parseInt(cardIdTxt.getText()));
+		if(staffId!=null&&!staffId.equals(staff.getId())){
+			JOptionPane.showMessageDialog(StaffInfoDialog.this, "该标识卡号已存在");
 			return false;
 		}
 		return true;
@@ -493,6 +512,8 @@ public class StaffInfoDialog extends JDialog implements DepTreeVisitable {
 	public static final int IMAGE_WIDTH = 120;
 	public static final int WIDTH = 620;
 	public static final int HEIGHT = 340;
+	private StaffManagerFrame owner;
+	private Staff staff;
 	private JTextField cardIdTxt;
 	private JTextField workIdTxt;
 	private JTextField nameTxt;

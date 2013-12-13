@@ -40,7 +40,7 @@
 #define CONFIG_ROM_ADDR 0x0
 #define VAL_LEN 4  //值部分数字个数
 extern bit inSetting;
-extern uchar xdata configArr[CONFIG_LEN];
+extern uchar  configArr[CONFIG_LEN];
 void Ir_work(void);
 void Ircordpro(void);
 void saveConfig();

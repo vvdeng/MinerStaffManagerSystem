@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Table(name = "staff")
 public class Staff {
 	private Long id;
-	private Long cardId;
+	private Integer cardId;
 	private Long workId;
 	private String name;
 	private Integer sex;
@@ -41,7 +41,7 @@ public class Staff {
 
 	}
 
-	public Staff(Long cardId,Long workId, String name, int sex, String birthDate,
+	public Staff(Integer cardId,Long workId, String name, int sex, String birthDate,
 			String certificateNo, Long eduLevelId, String eduLevel,
 			String phone, String address, Long professionId, String profession,
 			Long departmentId, Long dep1Id, Long dep2Id, Long dep3Id,
@@ -69,7 +69,7 @@ public class Staff {
 		this.image = image;
 	}
 
-	public void refresh(Long cardId,Long workId, String name, int sex, String birthDate,
+	public void refresh(Integer cardId,Long workId, String name, int sex, String birthDate,
 			String certificateNo, Long eduLevelId, String eduLevel,
 			String phone, String address, Long professionId, String profession,
 			Long departmentId, Long dep1Id, Long dep2Id, Long dep3Id,
@@ -117,11 +117,11 @@ public class Staff {
 		this.name = name;
 	}
 	@Column(name="card_id",nullable=false)
-	public Long getCardId(){
+	public Integer getCardId(){
 		return cardId;
 	}
 
-	public void setCardId(Long cardId){
+	public void setCardId(Integer cardId){
 		this.cardId=cardId;
 	}
 	@Column(name = "work_id", nullable = false)

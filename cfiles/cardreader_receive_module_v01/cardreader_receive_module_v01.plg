@@ -20,7 +20,7 @@ linking...
     SEGMENT: ?PR?_WRITEBYTE?VVSPI
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?READBYTE?VVSPI
-Program Size: data=57.2 xdata=425 code=1819
+Program Size: data=60.2 xdata=1300 code=2703
 creating hex file from "cardreader_receive_module_v01"...
 "cardreader_receive_module_v01" - 0 Error(s), 5 Warning(s).
 Build target 'Target 1'
@@ -36,6 +36,6 @@ linking...
     SEGMENT: ?PR?_WRITEBYTE?VVSPI
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?READBYTE?VVSPI
-Program Size: data=57.2 xdata=425 code=1819
+Program Size: data=60.2 xdata=1300 code=2703
 creating hex file from "cardreader_receive_module_v01"...
 "cardreader_receive_module_v01" - 0 Error(s), 5 Warning(s).

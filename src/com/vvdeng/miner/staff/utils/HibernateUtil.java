@@ -8,6 +8,8 @@ import com.vvdeng.miner.staff.entity.CardReader;
 import com.vvdeng.miner.staff.entity.InfoItem;
 import com.vvdeng.miner.staff.entity.PositionLog;
 import com.vvdeng.miner.staff.entity.Staff;
+import com.vvdeng.miner.staff.entity.StaffExtra;
+import com.vvdeng.miner.staff.entity.StationLog;
 import com.vvdeng.miner.staff.entity.SubDevice;
 import com.vvdeng.miner.staff.entity.User;
 
@@ -29,6 +31,8 @@ public class HibernateUtil {
 					.addAnnotatedClass(CardReader.class)
 					.addAnnotatedClass(PositionLog.class)
 					.addAnnotatedClass(CardNewestPosition.class)
+					.addAnnotatedClass(StationLog.class)
+					.addAnnotatedClass(StaffExtra.class)
 					.buildSessionFactory();
 			;
 		} catch (Throwable ex) {

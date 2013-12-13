@@ -8,12 +8,14 @@ import javax.swing.table.TableModel;
 public class CenterJTable extends JTable {
 	public CenterJTable(TableModel tableModel){
 		super(tableModel);
+		setRowHeight(21);
 	}
 	public TableCellRenderer getCellRenderer(int row, int column) {
 		TableCellRenderer renderer = super.getCellRenderer(row, column);
 		if (renderer instanceof JLabel) {
 			((JLabel) renderer).setHorizontalAlignment(JLabel.CENTER);
 		}
+		
 		return renderer;
 	}
 

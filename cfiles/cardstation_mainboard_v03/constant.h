@@ -20,8 +20,8 @@ sfr IPH    = 0xB7;
 #define SYM_END 0xFE
 #define SEG_COUNT 8
 
-#define MAX_CALL_STAFF_COUNT 80
-#define CALL_STAFF_BUF_LEN (MAX_CALL_STAFF_COUNT*2+1) //第0字节存储人数
+//#define MAX_CALL_STAFF_COUNT 12
+//#define CALL_STAFF_BUF_LEN (MAX_CALL_STAFF_COUNT*2+1) //第0字节存储人数
 
 #define SET_TIME_BUF_LEN 8
 #define UP_TIMEOUT_THRESHOLD 5000  //3秒

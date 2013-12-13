@@ -8,15 +8,12 @@ sfr P1M1=0x91;
 sfr P1M0=0x92;
 sfr P2M1=0x95;
 sfr P2M0=0x96;
-//sbit BTN=P0^0;
-sbit BTN=P2^0;
-//sbit LED_ALARM=P0^1;
-//sbit RING_ALARM=P0^2;
-//sbit RING_ALARM=P2^3;
-//sbit LED_TEST2 =P3^4;
-//sbit LED_TEST0 =P1^0;
-
-//sbit LED_TEST1 =P1^1;
+sfr P3M1=0xb1;
+sfr P3M0=0xb2;
+sbit ELVD = IE^6;                   //低压检测中断使能位
+#define LVDF    0x20                //PCON.5,低压检测中断标志位
+//sbit BTN=P2^0;
+sbit BTN=P3^3;
 sbit RING_ALARM=P1^0;
 sbit LED_TEST2 =P2^1;
 
@@ -30,8 +27,9 @@ uchar cardAddrToReader[CARD_ADDR_TO_READER_LEN]={0};
 uchar receiveAddr[CARD_RECEIVE_ADDR_LEN]={0x09,0x09,0x09,0x09,0x09};
 uchar recBuf[DATA_LEN]={0};
 #define SIGN_CARD_NORMAL 0x00
-#define SIGN_CARD_ALERT 0x01 
-#define SIGN_CARD_BAT_LOW 0x02 
+#define SIGN_CARD_ALERT 0x01
+#define SIGN_ALL_CARD_ALERT 0x02 
+#define SIGN_CARD_BAT_LOW 0x04 
 #define SIGN_ANS 0x01
 #define SIGN_ALERT 0x02
 
@@ -56,6 +54,12 @@ void EX1_ISR (void) interrupt 2{
     EA=1;
 }
 */
+void LVD_ISR() interrupt 6 using 1
+{
+    batLowFlag=1;
+    PCON &= ~LVDF;                  //向PCON.5写0清LVD中断
+	 
+}
 #define BTN_HIGH_LIMIT 50000
 #define BTN_LOW_LIMIT 2
 #define ALERT_HIGH_LIMIT 2000
@@ -65,6 +69,7 @@ uint alertCount=ALERT_LOW_LIMIT;
 uchar alertM;
 void alertIfNecessary(){
 	if(alertFlag==1){
+			EA = 0; 
 		alertFlag=0;
 		alertCount=ALERT_HIGH_LIMIT;
 //		LED_ALARM=0;//低有效
@@ -84,6 +89,7 @@ void alertIfNecessary(){
 //				LED_ALARM=1;
 				LED_TEST2=1;
 		}
+			EA = 1; 
 	}
 
 }
@@ -121,21 +127,28 @@ void Timer0_isr(void) interrupt 1 using 1
 	}
 }
 void init(){
+	
 	P1M1=0x0;
 	P1M0=0x1;
 	P2M1=0x1; //P2.0 仅为输入 P2.3 推挽输出
 	P2M0=0x8;
+	P3M1=0x8; //P2.0 仅为输入 P2.3 推挽输出
+	P3M0=0x0;
     RING_ALARM=0;
 	initPin();
 	makeAddr();
  	//定时器0 方式1 ，50ms。
 //	SBUF=0x0;
-	TMOD |= 0x01;	  		     
+/*	TMOD |= 0x01;	  		     
 	TH0=(65536-45872)/256;	      
 	TL0=(65536-45872)%256;
 	ET0=1;           
 	TR0=1;  
 	EA = 1;
+*/
+	PCON &= ~LVDF;                  //上电后需要清LVD中断标志位
+    ELVD = 1;                       //使能LVD中断
+    EA = 1;                         //打开总中断开关
 }
 
 void main(){
@@ -151,21 +164,24 @@ void main(){
 		PCON = 0x02;                //进入掉电模式
         _nop_();                    //掉电模式被唤醒后,直接从此语句开始向下执行
         _nop_();
-	//	LED_TEST2=~LED_TEST2;
+	
 	//	RX_Mode_2(cardAddr,CARD_ADDR_LEN,receiveAddr,CARD_RECEIVE_ADDR_LEN);
-				RX_Mode(receiveAddr,CARD_RECEIVE_ADDR_LEN);
-		delayMs(5);
+		RX_Mode(receiveAddr,CARD_RECEIVE_ADDR_LEN);
+		delayMs(4);//小于3效果不好
 		sta=SPI_Read(STATUS);
 		if((sta&0x40)==0x40)
 		{
-			LED_TEST2=~LED_TEST2;
+		//	LED_TEST2=~LED_TEST2;
 			SPI_Read_Buffer(RD_RX_PLOAD, recBuf, DATA_LEN);
 			SPI_Write_Read(FLUSH_RX);
 		    SPI_Write_Read_Register(WRITE_REG + STATUS, 0xff); // 清除TX_DS或MAX_RT中断标志
 			if(recBuf[0]==SIGN_CARD_ALERT)
 			{
-				LED_TEST2=~LED_TEST2;
+		//		LED_TEST2=~LED_TEST2;
 				changeReceiveModeFlag=1;
+			}
+			else if(recBuf[0]==SIGN_ALL_CARD_ALERT){
+			   alertFlag=1;
 			}
 			cardAddrToReader[0]=signalVal;
 			nRF24L01_TxPacket(READER_ADDRESS, READER_ADDR_LEN,cardAddrToReader,CARD_ADDR_TO_READER_LEN); 
@@ -182,7 +198,7 @@ void main(){
 			sta=SPI_Read(STATUS);
 			if((sta&0x40)==0x40)
 			{
-			//	LED_TEST2=~LED_TEST2;
+			////	LED_TEST2=~LED_TEST2;
 				SPI_Read_Buffer(RD_RX_PLOAD, recBuf, DATA_LEN);
 				SPI_Write_Read(FLUSH_RX);
 			    SPI_Write_Read_Register(WRITE_REG + STATUS, 0xff); // 清除TX_DS或MAX_RT中断标志
@@ -199,7 +215,7 @@ void main(){
 		}
 
 		
-		if(BTN==1){
+		if(BTN==1&&alertFlag==0){
 			btnDownFlag=1;
 			
 		}
@@ -212,7 +228,10 @@ void main(){
 			
 		}
 		if(batLowFlag==1){
-			batLowFlag=0;
+
+			batLowFlag=0;   	 
+	//		alertFlag=1;
+	//		signalVal|=SIGN_CARD_BAT_LOW;
 			signalVal|=SIGN_CARD_BAT_LOW;
 		}
 		alertIfNecessary();

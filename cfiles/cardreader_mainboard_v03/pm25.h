@@ -21,5 +21,11 @@ void FlashWriteEnable();
 void FlashErase();
 void FlashRead(ulong addr, ulong size, uchar *buffer);
 void FlashWrite(ulong addr, ulong size, uchar *buffer);
+void eraseSector(ulong addr);
+void resetFlash();
 extern bit g_fFlashOK;  
+
+
+
+
 #endif

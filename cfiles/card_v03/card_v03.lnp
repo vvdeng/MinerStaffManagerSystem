@@ -1,0 +1,5 @@
+"main.obj",
+"nrf24.obj",
+"useful.obj" 
+TO "card_v03" 
+RAMSIZE(256) 

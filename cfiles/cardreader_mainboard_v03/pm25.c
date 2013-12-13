@@ -38,10 +38,11 @@ bit IsFlashBusy()
     uchar dat;
     
     CS_PM25 = 0;
+	delayUs(10);
     WriteReadByte(SFC_RDSR);                         //发送读取状态命令
     dat = WriteReadByte(0);                          //读取状态
     CS_PM25 = 1;
-    
+    delayUs(10);
     return (dat & 0x01);                        //状态值的Bit0即为忙标志
 }
 
@@ -54,8 +55,10 @@ void FlashWriteEnable()
 {
     while (IsFlashBusy());                      //Flash忙检测
     CS_PM25 = 0;
+	delayUs(10);
     WriteReadByte(SFC_WREN);                         //发送写使能命令
     CS_PM25 = 1;
+	delayUs(10);
 }
 
 /************************************************
@@ -69,11 +72,48 @@ void FlashErase()
     {
         FlashWriteEnable();                     //使能Flash写命令
         CS_PM25 = 0;
+		delayUs(10);
         WriteReadByte(SFC_CHIPER);                   //发送片擦除命令
         CS_PM25 = 1;
+		delayUs(10);
     }
 }
 
+/************************************************
+从Flash中读取数据
+入口参数:
+    addr   : 地址参数
+    size   : 数据块大小
+    buffer : 缓冲从Flash中读取的数据
+出口参数:
+    无
+************************************************/
+/*
+void FlashFastRead(ulong addr, ulong size, uchar *buffer)
+{
+    if (g_fFlashOK)
+    {
+        while (IsFlashBusy());                  //Flash忙检测
+        CS_PM25 = 0;
+		delayUs(10);
+	//	WriteReadByte(SFC_READ);
+      WriteReadByte(SFC_FASTREAD);                 //使用快速读取命令
+        WriteReadByte(((uchar *)&addr)[1]);           //设置起始地址
+        WriteReadByte(((uchar *)&addr)[2]);
+        WriteReadByte(((uchar *)&addr)[3]);
+        WriteReadByte(0);                            //需要空读一个字节
+        while (size)
+        {
+            *buffer = WriteReadByte(0);              //自动连续读取并保存
+            addr++;
+            buffer++;
+            size--;
+        }
+        CS_PM25 = 1;
+		delayUs(10);
+    }
+}
+*/
 /************************************************
 从Flash中读取数据
 入口参数:
@@ -89,11 +129,13 @@ void FlashRead(ulong addr, ulong size, uchar *buffer)
     {
         while (IsFlashBusy());                  //Flash忙检测
         CS_PM25 = 0;
-        WriteReadByte(SFC_FASTREAD);                 //使用快速读取命令
+		delayUs(10);
+		WriteReadByte(SFC_READ);
+    //  WriteReadByte(SFC_FASTREAD);                 //使用快速读取命令
         WriteReadByte(((uchar *)&addr)[1]);           //设置起始地址
         WriteReadByte(((uchar *)&addr)[2]);
         WriteReadByte(((uchar *)&addr)[3]);
-        WriteReadByte(0);                            //需要空读一个字节
+    //    WriteReadByte(0);                            //需要空读一个字节
         while (size)
         {
             *buffer = WriteReadByte(0);              //自动连续读取并保存
@@ -102,9 +144,9 @@ void FlashRead(ulong addr, ulong size, uchar *buffer)
             size--;
         }
         CS_PM25 = 1;
+		delayUs(10);
     }
 }
-
 /************************************************
 写数据到Flash中
 入口参数:
@@ -116,26 +158,48 @@ void FlashRead(ulong addr, ulong size, uchar *buffer)
 void FlashWrite(ulong addr, ulong size, uchar *buffer)
 {
     if (g_fFlashOK)
-    while (size)
     {
-        FlashWriteEnable();                     //使能Flash写命令
-        CS_PM25 = 0;
-        WriteReadByte(SFC_PAGEPROG);                 //发送页编程命令
-        WriteReadByte(((uchar *)&addr)[1]);           //设置起始地址
-        WriteReadByte(((uchar *)&addr)[2]);
-        WriteReadByte(((uchar *)&addr)[3]);
-        while (size)
-        {
-            WriteReadByte(*buffer);                  //连续页内写
-            addr++;
-            buffer++;
-            size--;
-            if ((addr & 0xff) == 0) break;
-        }
-        CS_PM25 = 1;
-    }
+		while (IsFlashBusy());                  //Flash忙检测
+		while (size)
+	    {
+
+	        FlashWriteEnable();                     //使能Flash写命令
+	        CS_PM25 = 0;
+			delayUs(10);
+	        WriteReadByte(SFC_PAGEPROG);                 //发送页编程命令
+	        WriteReadByte(((uchar *)&addr)[1]);           //设置起始地址
+	        WriteReadByte(((uchar *)&addr)[2]);
+	        WriteReadByte(((uchar *)&addr)[3]);
+	        while (size)
+	        {
+	            WriteReadByte(*buffer);                  //连续页内写
+	            addr++;
+	            buffer++;
+	            size--;
+	            if ((addr & 0xff) == 0) break;
+	        }
+	        CS_PM25 = 1;
+			delayUs(10);
+	    }
+	}
 }
+void eraseSector(ulong addr){
+		FlashWriteEnable(); 
+		CS_PM25 = 0;
+		delayUs(10);
+		WriteReadByte(SFC_SECTORER);
+		WriteReadByte(((uchar *)&addr)[1]);           //设置起始地址
+		WriteReadByte(((uchar *)&addr)[2]);
+		WriteReadByte(((uchar *)&addr)[3]);
+		CS_PM25 = 1;
+		delayUs(10);
+		delayMs(50);
+	
+}
+
 void resetFlash(){
 	//g_fFlashOK=0;
 	g_fFlashOK=1;// 默认使flash直接有效，不做检测
 }
+
+

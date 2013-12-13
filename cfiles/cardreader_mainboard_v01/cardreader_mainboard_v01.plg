@@ -1,0 +1,36 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+D:\Keil4\workspace\cardreader_mainboard_v01\cardreader_mainboard_v01.uvproj
+Project File Date:  10/11/2013
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling config.c...
+compiling main.c...
+MAIN.C(402): warning C182: pointer to different objects
+MAIN.C(406): warning C182: pointer to different objects
+MAIN.C(428): warning C182: pointer to different objects
+MAIN.C(438): warning C182: pointer to different objects
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?IRINIT?CONFIG
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?ADJUSTDISPLAY?DISPLAY
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SENDDATAUP?MAIN
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?PM25TEST?MAIN
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAYMS?USEFUL
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?READBYTE?VVSPI
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FLASHERASE?PM25
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?RESETFLASH?PM25
+Program Size: data=106.3 xdata=809 code=4953
+creating hex file from "cardreader_mainboard_v01"...
+"cardreader_mainboard_v01" - 0 Error(s), 12 Warning(s).

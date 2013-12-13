@@ -29,14 +29,17 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import com.vvdeng.miner.constant.ReaderType;
 import com.vvdeng.miner.staff.dao.CardReaderDAO;
 import com.vvdeng.miner.staff.dao.SubDeviceDAO;
 import com.vvdeng.miner.staff.entity.CardReader;
 import com.vvdeng.miner.staff.entity.InfoItem;
 import com.vvdeng.miner.staff.entity.SubDevice;
 import com.vvdeng.miner.staff.filter.CardReaderFilter;
+import com.vvdeng.miner.staff.utils.GlobalData;
 import com.vvdeng.miner.staff.utils.InfoItemUtil;
 import com.vvdeng.miner.staff.utils.UIUtil;
+import com.vvdeng.miner.staff.utils.Util;
 
 public class SubDeviceDialog extends JDialog {
 
@@ -72,6 +75,9 @@ public class SubDeviceDialog extends JDialog {
 			subDeviceTypeCombo = new JComboBox(InfoItemUtil.getInfoItem(
 					InfoItem.TYPE.SUBDEVICE_TYPE).toArray());
 			subDeviceTypeCombo.setPreferredSize(new Dimension(100, 20));
+			JLabel subDeviceAddrLabel = new JLabel("地址码");
+			subDeviceAddrTxt = new JTextField();
+			subDeviceAddrTxt.setPreferredSize(new Dimension(100, 20));
 			JLabel subDeviceRegionLabel = new JLabel("区  域");
 			subDeviceRegionCombo = new JComboBox(InfoItemUtil.getInfoItem(
 					InfoItem.TYPE.REGION).toArray());
@@ -98,20 +104,29 @@ public class SubDeviceDialog extends JDialog {
 
 						@Override
 						public void actionPerformed(ActionEvent e) {
-							checkSubDeviceFields();
+							if(!checkSubDeviceFields()){
+								return;
+							}
 							SubDevice subDevice = new SubDevice();
+							if(SubDeviceDialog.this.subDevice!=null){
+								subDevice.setId(SubDeviceDialog.this.subDevice.getId());
+							}
 							subDevice
 									.setName(subDeviceNameTxt.getText().trim());
+							subDevice.setDeviceId(Integer.parseInt(subDeviceAddrTxt.getText().trim()));
 							subDevice
 									.setDescription(subDeviceDescriptionTxt.getText().trim());
 							subDevice.setTypeId(((InfoItem) subDeviceTypeCombo
 									.getSelectedItem()).getId());
-							subDevice.setType("bbb");
+							subDevice.setType(((InfoItem) subDeviceTypeCombo
+									.getSelectedItem()).getValue());
 							subDevice
 									.setRegionId(((InfoItem) subDeviceRegionCombo
 											.getSelectedItem()).getId());
-							subDevice.setRegion("aaa");
+							subDevice.setRegion(((InfoItem) subDeviceRegionCombo
+									.getSelectedItem()).getValue());
 							subDeviceDAO.save(subDevice);
+							GlobalData.subDeviceMap.put(subDevice.getDeviceId(), subDevice);
 							JOptionPane.showMessageDialog(SubDeviceDialog.this,
 									"保存成功");
 							owner.refreshSubDeviceTable();
@@ -125,6 +140,9 @@ public class SubDeviceDialog extends JDialog {
 					new GBC(2, 0).setAnchor(GridBagConstraints.EAST));
 			subDeviceDefPanel.add(subDeviceTypeCombo,
 					new GBC(3, 0).setInsets(3));
+			subDeviceDefPanel.add(subDeviceAddrLabel,
+					new GBC(0, 1).setAnchor(GridBagConstraints.EAST));
+			subDeviceDefPanel.add(subDeviceAddrTxt, new GBC(1, 1).setInsets(3));
 			subDeviceDefPanel.add(subDeviceRegionLabel,
 					new GBC(2, 1).setAnchor(GridBagConstraints.EAST));
 			subDeviceDefPanel.add(subDeviceRegionCombo,
@@ -148,8 +166,7 @@ public class SubDeviceDialog extends JDialog {
 			readerNameTxt = new JTextField();
 			readerNameTxt.setPreferredSize(new Dimension(100, 20));
 			JLabel readerTypeLabel = new JLabel("类  型");
-			readerTypeCombo = new JComboBox(InfoItemUtil.getInfoItem(
-					InfoItem.TYPE.READER_TYPE).toArray());
+			readerTypeCombo = new JComboBox(ReaderType.values());
 			readerTypeCombo.setPreferredSize(new Dimension(100, 20));
 			JLabel readerRegionLabel = new JLabel("区  域");
 			readerRegionCombo = new JComboBox(InfoItemUtil.getInfoItem(
@@ -177,8 +194,14 @@ public class SubDeviceDialog extends JDialog {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							checkReaderFields();
-							CardReader reader = new CardReader();
-							reader.setDeviceId(subDevice.getId());
+							CardReader reader;
+							if(portMap.containsKey(selPortNum)){
+								reader=portMap.get(selPortNum);
+							}
+							else{
+								reader = new CardReader();
+							}
+							reader.setDeviceId(subDevice.getDeviceId());
 							reader.setPortNum(new Integer(portNumValLabel
 									.getText()));
 							reader.setName(readerNameTxt.getText());
@@ -187,11 +210,12 @@ public class SubDeviceDialog extends JDialog {
 									.getSelectedItem()).getId());
 							reader.setType(((InfoItem) readerTypeCombo
 									.getSelectedItem()).getValue());
-							reader.setRegionId(((InfoItem) readerRegionCombo
-									.getSelectedItem()).getId());
-							reader.setRegion(((InfoItem) readerRegionCombo
-									.getSelectedItem()).getValue());
+							reader.setRegionId(((long)((ReaderType) readerRegionCombo
+									.getSelectedItem()).getId()));
+							reader.setRegion(((ReaderType) readerRegionCombo
+									.getSelectedItem()).getDesc());
 							cardReaderDAO.save(reader);
+							GlobalData.cardReaderMap.put(reader.getReaderId(), reader);
 							JOptionPane.showMessageDialog(SubDeviceDialog.this,
 									"保存成功");
 							// TODO 考虑直接替换缓存
@@ -210,6 +234,7 @@ public class SubDeviceDialog extends JDialog {
 										SubDeviceDialog.this, "确定要移除选定的端口定义吗	",
 										"确认对话框", JOptionPane.YES_NO_OPTION);
 								if (choice == JOptionPane.YES_OPTION) {
+									GlobalData.cardReaderMap.remove(selCardReader).getReaderId();
 									cardReaderDAO.delete(selCardReader);
 									clearReaderFields();
 									initPorts(subDevice);
@@ -253,6 +278,7 @@ public class SubDeviceDialog extends JDialog {
 			} else {
 				disableSubDeviceFields();
 				subDeviceNameTxt.setText(subDevice.getName());
+				subDeviceAddrTxt.setText(subDevice.getDeviceId().toString());
 				subDeviceDescriptionTxt.setText(subDevice.getDescription());
 				subDeviceTypeCombo.setSelectedItem(new InfoItem(subDevice
 						.getTypeId()));
@@ -273,11 +299,21 @@ public class SubDeviceDialog extends JDialog {
 				JOptionPane.showMessageDialog(SubDeviceDialog.this, "名称不能为空");
 				return false;
 			}
+			if(!Util.checkDigit(subDeviceAddrTxt.getText().trim())){
+				JOptionPane.showMessageDialog(SubDeviceDialog.this, "地址码应为整数");
+				return false;
+			}
+			Long id=owner.getSubDeviceDAO().findByDeviceId(Integer.parseInt(subDeviceAddrTxt.getText()));
+			if(id!=null&&!id.equals(subDevice.getId())){
+				JOptionPane.showMessageDialog(SubDeviceDialog.this, "该地址分站已存在");
+				return false;
+			}
 			return true;
 		}
 
 		public void enableSubDeviceFields() {
 			subDeviceNameTxt.setEnabled(true);
+			subDeviceAddrTxt.setEditable(true);
 			subDeviceTypeCombo.setEnabled(true);
 			subDeviceRegionCombo.setEnabled(true);
 			subDeviceDescriptionTxt.setEnabled(true);
@@ -285,6 +321,7 @@ public class SubDeviceDialog extends JDialog {
 
 		public void disableSubDeviceFields() {
 			subDeviceNameTxt.setEnabled(false);
+			subDeviceAddrTxt.setEditable(false);
 			subDeviceTypeCombo.setEnabled(false);
 			subDeviceRegionCombo.setEnabled(false);
 			subDeviceDescriptionTxt.setEnabled(false);
@@ -295,16 +332,18 @@ public class SubDeviceDialog extends JDialog {
 			if (reader == null) {
 				clearReaderFields();
 				enableReaderFields();
+				selPortNum=0;
 				portNumValLabel.setText(portNum.toString());
 			} else {
 				disableReaderFields();
+				selPortNum=portNum;
 				portNumValLabel.setText(portNum.toString());
 				readerNameTxt.setText(reader.getName());
 				readerDescriptionTxt.setText(reader.getDescription());
 				readerTypeCombo
-						.setSelectedItem(new InfoItem(reader.getTypeId()));
-				readerRegionCombo.setSelectedItem(new InfoItem(reader
-						.getRegionId()));
+						.setSelectedItem(ReaderType.values()[reader
+						             						.getTypeId().intValue()]);
+				readerRegionCombo.setSelectedItem(new InfoItem(reader.getRegionId()));
 			}
 		}
 
@@ -352,9 +391,11 @@ public class SubDeviceDialog extends JDialog {
 		}
 
 		JTextField subDeviceNameTxt;
+		JTextField subDeviceAddrTxt;
 		JComboBox subDeviceTypeCombo;
 		JComboBox subDeviceRegionCombo;
 		JTextArea subDeviceDescriptionTxt;
+		Integer selPortNum;
 		JLabel portNumValLabel;
 		JTextField readerNameTxt;
 		JComboBox readerTypeCombo;

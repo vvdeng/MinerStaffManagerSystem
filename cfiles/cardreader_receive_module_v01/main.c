@@ -55,7 +55,7 @@ uchar transBuf[DATA_LEN]={0};
 #define SIGN_ALERT 0x02
 
 #define FLAG_BIT 6 //
-#define CARD_TOTAL 1000 //标识卡总数，编号从1到CARD_TOTAL
+#define CARD_TOTAL 8000 //标识卡总数，编号从1到CARD_TOTAL
 #define MAX_STAFFS_COUNT 80
 #define CALL_STAFFS_LEN (MAX_STAFFS_COUNT*3+1) //第0位为人数
 //uchar xdata receivedCardNo[CARD_TOTAL/8]={0};
@@ -88,7 +88,8 @@ bit reqCardsFlag=0,testFlag=0;
 #define COMM_STATE2_REQ_READER_STATE 1
 #define COMM_STATE2_REQ_READER_STATE_STARTED 2 
 #define CMD_REQ_READER_STATE 0x80
-#define SYM_BEGIN 0xF0
+//分隔符号定义为  0x1xxx YYYx YYY不能为全0
+#define SYM_BEGIN 0xFD
 #define SYM_END 0xFE
 /*
 //uchar preData=0,curData=0; 
@@ -148,7 +149,7 @@ void Uart2() interrupt 8 using 1
 
 
 void init() {
-	uchar n;
+//	uint n;
 
 //	init_spi();
 	//串口2
@@ -163,12 +164,13 @@ void init() {
 //    commState1=COMM_STATE_NOTHING;
     
 	
-
+/*
 	for(n=0;n<(CARD_TOTAL/8);n++)
 	{
 		receivedCardNoAndRing[n]=0;
 	}
-
+*/
+	memset(receivedCardNoAndRing, 0,CARD_TOTAL/8);
 
                                      
 }
@@ -244,7 +246,7 @@ void testInit(){
 	cardsExtraArr[0]=0x0;
 }
 uint testCount=0;
-uchar cardNormalOrRingIndex=0,cardNoDiv8,cardNoMod8;
+uint cardNormalOrRingIndex=0,cardNoDiv8,cardNoMod8;
 void main() {
 	LED_TEST0=0;
 	LED_TEST1=0;

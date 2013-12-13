@@ -51,7 +51,7 @@ import com.vvdeng.miner.staff.dao.StaffDAO;
 import com.vvdeng.miner.staff.dao.UserDAO;
 import com.vvdeng.miner.staff.entity.InfoItem;
 import com.vvdeng.miner.staff.entity.User;
-import com.vvdeng.miner.staff.ui.tablemodel.InfoItemTableModel;
+import com.vvdeng.miner.staff.ui.model.InfoItemTableModel;
 import com.vvdeng.miner.staff.utils.HibernateUtil;
 import com.vvdeng.miner.staff.utils.PropertiesUtil;
 import com.vvdeng.miner.staff.utils.SysConfiguration;

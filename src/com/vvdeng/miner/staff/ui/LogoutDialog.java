@@ -54,7 +54,9 @@ class LogoutDialog extends JDialog {
 					JOptionPane.showMessageDialog(owner, "密码输入不正确");
 				}
 				//dispose();
-				owner.dispose();
+				System.exit(0);
+				//owner.dispose();
+				
 			}
 		};
 		pwdTxt = new JPasswordField();
@@ -79,7 +81,7 @@ class LogoutDialog extends JDialog {
 		});
 		panel.add(logoutBtn, new GBC(1, 3).setInsets(5, 5, 5, 0));
 		panel.add(exitBtn, new GBC(2, 3).setInsets(5, 0, 5, 5));
-
+		
 		setResizable(false);
 		setSize(320, 200);
 		setLocation(Util.calculatePosition(owner, this));

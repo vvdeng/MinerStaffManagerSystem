@@ -8,29 +8,29 @@ import javax.persistence.Table;
 @Entity
 @Table(name="card_newest_position")
 public class CardNewestPosition {
-	private Long cardId;
-	private Long subDeviceId;
-	private Long readerId;
+	private Integer cardId;
+	private Integer subDeviceId;
+	private Integer readerId;
 	@Id
 	@Column(name="id")
-	public Long getCardId() {
+	public Integer getCardId() {
 		return cardId;
 	}
-	public void setCardId(Long cardId) {
+	public void setCardId(Integer cardId) {
 		this.cardId = cardId;
 	}
 	@Column(name="sub_device_id")
-	public Long getSubDeviceId() {
+	public Integer getSubDeviceId() {
 		return subDeviceId;
 	}
-	public void setSubDeviceId(Long subDeviceId) {
+	public void setSubDeviceId(Integer subDeviceId) {
 		this.subDeviceId = subDeviceId;
 	}
 	@Column(name="reader_id")
-	public Long getReaderId() {
+	public Integer getReaderId() {
 		return readerId;
 	}
-	public void setReaderId(Long readerId) {
+	public void setReaderId(Integer readerId) {
 		this.readerId = readerId;
 	}
 }

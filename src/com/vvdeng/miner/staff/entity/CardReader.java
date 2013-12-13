@@ -11,8 +11,9 @@ import javax.persistence.Table;
 public class CardReader {
 	
 	private Long id;
-	private Long deviceId;
+	private Integer deviceId;
 	private Integer portNum;
+	private Integer readerId;
 	private String name;
 	private Integer state;
 	private Long typeId;
@@ -30,10 +31,10 @@ public class CardReader {
 		this.id = id;
 	}
 	@Column(name="device_id")
-	public Long getDeviceId() {
+	public Integer getDeviceId() {
 		return deviceId;
 	}
-	public void setDeviceId(Long deviceId) {
+	public void setDeviceId(Integer deviceId) {
 		this.deviceId = deviceId;
 	}
 	@Column(name="port_num")
@@ -42,6 +43,16 @@ public class CardReader {
 	}
 	public void setPortNum(Integer portNum) {
 		this.portNum = portNum;
+	}
+	@Column(name="reader_id")
+	public Integer getReaderId() {
+		System.out.println("reader deviceId="+deviceId);
+		System.out.println("reader portNum="+portNum);
+		return this.deviceId*100+this.portNum;
+	}
+	public void setReaderId(Integer readerId) {
+	//	this.readerId = readerId;
+		this.readerId = this.deviceId*100+this.portNum;
 	}
 	@Column(name="name")
 	public String getName() {

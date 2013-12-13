@@ -177,10 +177,10 @@
       <FileType>1</FileType>
       <tvExp>1</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>62</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1</TopLine>
-      <CurrentLine>2</CurrentLine>
+      <TopLine>105</TopLine>
+      <CurrentLine>105</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\config.c</PathWithFileName>
       <FilenameWithoutPath>config.c</FilenameWithoutPath>
@@ -189,12 +189,12 @@
       <GroupNumber>1</GroupNumber>
       <FileNumber>2</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>15</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>1</TopLine>
+      <CurrentLine>9</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\display.c</PathWithFileName>
       <FilenameWithoutPath>display.c</FilenameWithoutPath>
@@ -219,10 +219,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>20</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>837</TopLine>
-      <CurrentLine>866</CurrentLine>
+      <TopLine>472</TopLine>
+      <CurrentLine>474</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
@@ -261,10 +261,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>54</ColumnNumber>
+      <ColumnNumber>12</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1</TopLine>
-      <CurrentLine>2</CurrentLine>
+      <TopLine>189</TopLine>
+      <CurrentLine>193</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\sd2200.c</PathWithFileName>
       <FilenameWithoutPath>sd2200.c</FilenameWithoutPath>
@@ -277,7 +277,7 @@
       <Focus>0</Focus>
       <ColumnNumber>11</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1</TopLine>
+      <TopLine>4</TopLine>
       <CurrentLine>14</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\pm25.c</PathWithFileName>
@@ -286,9 +286,61 @@
   </Group>
 
   <AlienFiles>
+    <PathWithFilename>D:\Keil4\workspace\cardstation_mainboard_v03\DISPLAY.H</PathWithFilename>
+    <TopLine>1</TopLine>
+    <CurrentLine>1</CurrentLine>
+    <Constant>0</Constant>
+    <WindowPosition>
+      <length>0</length>
+      <flags>0</flags>
+      <showCmd>0</showCmd>
+      <MinPosition>
+        <xPos>0</xPos>
+        <yPos>0</yPos>
+      </MinPosition>
+      <MaxPosition>
+        <xPos>0</xPos>
+        <yPos>0</yPos>
+      </MaxPosition>
+      <NormalPosition>
+        <Top>0</Top>
+        <Left>0</Left>
+        <Right>0</Right>
+        <Bottom>0</Bottom>
+      </NormalPosition>
+    </WindowPosition>
+  </AlienFiles>
+
+  <AlienFiles>
+    <PathWithFilename>D:\Keil4\workspace\cardstation_mainboard_v03\CONSTANT.H</PathWithFilename>
+    <TopLine>4</TopLine>
+    <CurrentLine>4</CurrentLine>
+    <Constant>0</Constant>
+    <WindowPosition>
+      <length>0</length>
+      <flags>0</flags>
+      <showCmd>0</showCmd>
+      <MinPosition>
+        <xPos>0</xPos>
+        <yPos>0</yPos>
+      </MinPosition>
+      <MaxPosition>
+        <xPos>0</xPos>
+        <yPos>0</yPos>
+      </MaxPosition>
+      <NormalPosition>
+        <Top>0</Top>
+        <Left>0</Left>
+        <Right>0</Right>
+        <Bottom>0</Bottom>
+      </NormalPosition>
+    </WindowPosition>
+  </AlienFiles>
+
+  <AlienFiles>
     <PathWithFilename>D:\Keil4\workspace\cardstation_mainboard_v03\CONFIG.H</PathWithFilename>
-    <TopLine>23</TopLine>
-    <CurrentLine>23</CurrentLine>
+    <TopLine>33</TopLine>
+    <CurrentLine>43</CurrentLine>
     <Constant>0</Constant>
     <WindowPosition>
       <length>0</length>
@@ -313,7 +365,7 @@
 
   <AlienFiles>
     <PathWithFilename>D:\Keil4\workspace\cardstation_mainboard_v03\SD2200.H</PathWithFilename>
-    <TopLine>1</TopLine>
+    <TopLine>5</TopLine>
     <CurrentLine>15</CurrentLine>
     <Constant>0</Constant>
     <WindowPosition>
@@ -365,8 +417,8 @@
 
   <AlienFiles>
     <PathWithFilename>D:\Keil4\workspace\cardstation_mainboard_v03\VVSPI.H</PathWithFilename>
-    <TopLine>5</TopLine>
-    <CurrentLine>25</CurrentLine>
+    <TopLine>6</TopLine>
+    <CurrentLine>6</CurrentLine>
     <Constant>0</Constant>
     <WindowPosition>
       <length>0</length>
@@ -1734,15 +1786,15 @@
       <Documents>
         <Doc>
           <Name>.\main.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>837</TopLine>
-          <CurrentLine>866</CurrentLine>
+          <ColumnNumber>20</ColumnNumber>
+          <TopLine>472</TopLine>
+          <CurrentLine>474</CurrentLine>
         </Doc>
         <Doc>
           <Name>VVSPI.H</Name>
-          <ColumnNumber>17</ColumnNumber>
-          <TopLine>5</TopLine>
-          <CurrentLine>25</CurrentLine>
+          <ColumnNumber>35</ColumnNumber>
+          <TopLine>6</TopLine>
+          <CurrentLine>6</CurrentLine>
         </Doc>
         <Doc>
           <Name>D:\Keil4\workspace\cardstation_mainboard_v03\DS1302.c</Name>
@@ -1752,9 +1804,9 @@
         </Doc>
         <Doc>
           <Name>.\sd2200.c</Name>
-          <ColumnNumber>54</ColumnNumber>
-          <TopLine>1</TopLine>
-          <CurrentLine>2</CurrentLine>
+          <ColumnNumber>12</ColumnNumber>
+          <TopLine>189</TopLine>
+          <CurrentLine>193</CurrentLine>
         </Doc>
         <Doc>
           <Name>.\vvspi.c</Name>
@@ -1765,26 +1817,44 @@
         <Doc>
           <Name>SD2200.H</Name>
           <ColumnNumber>8</ColumnNumber>
-          <TopLine>1</TopLine>
+          <TopLine>5</TopLine>
           <CurrentLine>15</CurrentLine>
         </Doc>
         <Doc>
           <Name>.\pm25.c</Name>
           <ColumnNumber>11</ColumnNumber>
-          <TopLine>1</TopLine>
+          <TopLine>4</TopLine>
           <CurrentLine>14</CurrentLine>
         </Doc>
         <Doc>
           <Name>.\config.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>1</TopLine>
-          <CurrentLine>2</CurrentLine>
+          <ColumnNumber>62</ColumnNumber>
+          <TopLine>105</TopLine>
+          <CurrentLine>105</CurrentLine>
         </Doc>
         <Doc>
           <Name>CONFIG.H</Name>
+          <ColumnNumber>23</ColumnNumber>
+          <TopLine>33</TopLine>
+          <CurrentLine>43</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>CONSTANT.H</Name>
+          <ColumnNumber>2</ColumnNumber>
+          <TopLine>4</TopLine>
+          <CurrentLine>4</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>.\display.c</Name>
+          <ColumnNumber>15</ColumnNumber>
+          <TopLine>1</TopLine>
+          <CurrentLine>9</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>DISPLAY.H</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>23</TopLine>
-          <CurrentLine>23</CurrentLine>
+          <TopLine>1</TopLine>
+          <CurrentLine>1</CurrentLine>
         </Doc>
       </Documents>
     </MDIGroup>

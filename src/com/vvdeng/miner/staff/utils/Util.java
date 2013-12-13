@@ -75,7 +75,10 @@ public class Util {
 		}
 		return date;
 	}
-
+	public static Date parseDate(int hour,int minute,int second,int year,int month,int date){
+		
+		return new Date(year+100, month-1, date, hour, minute, second);// 构造函数实现中year计数从1900年开始	
+	}
 	public static Point calculatePosition(Window parent, JDialog dialog) {
 		int x = parent.getX() + (parent.getWidth() - dialog.getWidth()) / 2;
 		int y = parent.getY() + (parent.getHeight() - dialog.getHeight()) / 2;
@@ -250,6 +253,14 @@ public class Util {
 	public static void clearDepTree(){
 		depList=null;
 	}
+	public static long getDateLong(Date date){
+		//new Date(0) 基准时间是1970年1月1日 早上八点整
+		return date.getTime()/(1000*3600*24)*(1000*3600*24)-1000*3600*8;
+	}
+	public static long getCurrentDateLong(){
+		//new Date(0) 基准时间是1970年1月1日 早上八点整
+		return getDateLong(new Date());
+	}
 	public static byte[] getCurrentTimeBytes(){
 		byte [] result=new byte[8];
 		Calendar c=Calendar.getInstance();
@@ -263,5 +274,8 @@ public class Util {
 	//	result[7]=(byte)(c.get(Calendar.WEEK_OF_MONTH)&0xff);
 		result[7]=0;
 		return result;
+	}
+	public static void main(String args[]){
+		System.out.println(new Date(getCurrentDateLong()));
 	}
 }

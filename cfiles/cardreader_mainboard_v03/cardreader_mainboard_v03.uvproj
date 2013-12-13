@@ -168,7 +168,7 @@
         </Utilities>
         <Target51>
           <Target51Misc>
-            <MemoryModel>0</MemoryModel>
+            <MemoryModel>2</MemoryModel>
             <RTOS>0</RTOS>
             <RomSize>2</RomSize>
             <DataHold>0</DataHold>
@@ -213,7 +213,7 @@
               <RCB>
                 <Type>0</Type>
                 <StartAddress>0x0</StartAddress>
-                <Size>0x10000</Size>
+                <Size>0xffff</Size>
               </RCB>
               <RXB>
                 <Type>0</Type>
@@ -367,11 +367,6 @@
               <FilePath>.\main.c</FilePath>
             </File>
             <File>
-              <FileName>pm25.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\pm25.c</FilePath>
-            </File>
-            <File>
               <FileName>sd2200.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\sd2200.c</FilePath>
@@ -385,6 +380,11 @@
               <FileName>vvspi.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\vvspi.c</FilePath>
+            </File>
+            <File>
+              <FileName>pm25.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\pm25.c</FilePath>
             </File>
           </Files>
         </Group>
