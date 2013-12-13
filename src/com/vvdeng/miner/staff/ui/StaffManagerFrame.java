@@ -672,10 +672,17 @@ public class StaffManagerFrame extends JFrame implements DepTreeVisitable {
 		splitPanel.setDividerSize(5);
 
 		JPanel commPanel = new JPanel();
+		
 		commPanel.setPreferredSize(new Dimension(mainPanel.getWidth(), 200));
 		commPanel.setBorder(BorderFactory.createEtchedBorder());
 		commPanel.setLayout(new GridBagLayout());
 		commInfoTextArea = new JTextArea();
+		
+		commInfoTextArea.setBackground(new Color(235, 234, 225));
+		commInfoTextArea.setEditable(false);
+		commInfoTextArea.setLineWrap(true);
+		JScrollPane commInfoScollPanel=new JScrollPane(commInfoTextArea);
+		commInfoScollPanel.setAutoscrolls(false);
 		JPanel staPanel = new JPanel();
 		staPanel.setLayout(new GridBagLayout());
 		staTotalLabel = new JLabel();
@@ -690,7 +697,7 @@ public class StaffManagerFrame extends JFrame implements DepTreeVisitable {
 				new GBC(0, 0).setFillBoth().setWeight(100, 100));
 		staPanel.add(staTodayLabel,
 				new GBC(0, 1).setFillBoth().setWeight(100, 100));
-		commPanel.add(commInfoTextArea,
+		commPanel.add(commInfoScollPanel,
 				new GBC(0, 0).setFillV().setWeight(70, 100).setFillBoth());
 		commPanel.add(staPanel, new GBC(1, 0).setFillV().setWeight(30, 100)
 				.setFillBoth());
@@ -883,8 +890,9 @@ public class StaffManagerFrame extends JFrame implements DepTreeVisitable {
 
 						stationLogDAO.save(stationLog);
 						GlobalData.currentBgActivityState = BackgroundActivity.STATE_ONE_REFRESHED;
-						System.out.println("[TimeAction] 分站"
-								+ subDevice.getDeviceId() + "通讯中断");
+						GlobalData.msgQueue.add("分站"
+								+ subDevice.getDeviceId() + StationCommState.values()[subDevice.getState()].getDesc());
+						
 						notifyActivity();
 					}
 				}
@@ -907,6 +915,7 @@ public class StaffManagerFrame extends JFrame implements DepTreeVisitable {
 				CmdObject cmdObject = GlobalData.cmdQueue.poll();
 				switch (cmdObject.getCmdType()) {
 				case CmdObject.CMD_SYN_TIME:
+					GlobalData.msgQueue.add("时钟同步");
 					serialComm.startSynchronizeTime(Util.getCurrentTimeBytes());
 					break;
 				case CmdObject.CMD_CLEAR_ALL_DATA:
@@ -917,7 +926,7 @@ public class StaffManagerFrame extends JFrame implements DepTreeVisitable {
 					deviceTableModel.setModel(new ArrayList(
 							GlobalData.subDeviceMap.values()));
 					deviceTableModel.fireTableDataChanged();
-
+					GlobalData.msgQueue.add("数据重置完毕");
 					// JOptionPane.showMessageDialog(null, "数据重置完毕");
 					serialComm.commState = SerialComm.STATE_NOTHING;
 					GlobalData.currentStationIndex = 0;
@@ -925,6 +934,7 @@ public class StaffManagerFrame extends JFrame implements DepTreeVisitable {
 					notifyActivity();
 					break;
 				case CmdObject.CMD_CALL_STAFF:
+					GlobalData.msgQueue.add("人员呼叫/取消呼叫");
 					serialComm.callStaff(cmdObject.getExtraData());
 					// case CmdObject.CMD_CANCEL_CALL_STAFF:
 					// serialComm.cancelCallStaff();
@@ -941,7 +951,8 @@ public class StaffManagerFrame extends JFrame implements DepTreeVisitable {
 		public static final int STATE_TOTAL_REFRESHED = 1;
 		public static final int STATE_ONE_REFRESHED = 2;
 		public static final int STATE_CALL_STAFF = 3;
-
+		public static final int STATE_CALL_ALL_STAFF = 4;
+		public static final int STATE_CANCELCALL_STAFF = 5;
 		public BackgroundActivity() {
 
 		}
@@ -995,7 +1006,7 @@ public class StaffManagerFrame extends JFrame implements DepTreeVisitable {
 					staffInfoTableModel.fireTableDataChanged();
 					break;
 				case BackgroundActivity.STATE_ONE_REFRESHED:
-					System.out.println("部分更新");
+			/*		System.out.println("部分更新");
 					SubDevice subDevice = GlobalData.subDeviceMap
 							.get(GlobalData.currentStationIndex);
 					//current值已经不对 变为下一个
@@ -1011,8 +1022,14 @@ public class StaffManagerFrame extends JFrame implements DepTreeVisitable {
 										.getState()].getDesc() + "\n");
 					}
 					break;
+			*/
 				default:
 					break;
+				}
+				while(!GlobalData.msgQueue.isEmpty()){
+					commInfoTextArea.append("  ");
+					commInfoTextArea.append(GlobalData.msgQueue.poll());
+					commInfoTextArea.append("\n");
 				}
 			}
 
@@ -1084,6 +1101,7 @@ public class StaffManagerFrame extends JFrame implements DepTreeVisitable {
 	private BackgroundActivity backgroundActivity;
 	private JLabel staTotalLabel;
 	private JLabel staTodayLabel;
+	//TODO 清空可显示范围外的 commInfoTextArea的内容
 	private JTextArea commInfoTextArea;
 
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.vvdeng.miner.constant.PositionEvent;
 import com.vvdeng.miner.constant.ReaderType;
+import com.vvdeng.miner.constant.StationCommState;
 import com.vvdeng.miner.staff.comm.SerialComm;
 import com.vvdeng.miner.staff.dao.CardReaderDAO;
 import com.vvdeng.miner.staff.dao.PositionLogDAO;
@@ -104,6 +105,10 @@ public class DAOUtil {
 			return;
 		}
 		stationLogDAO.save(stationLog);
+		GlobalData.msgQueue.add("∑÷’æ"
+				+ stationLog.getSubDeviceId()
+				+ StationCommState.values()[stationLog
+						.getEvent()].getDesc());
 		SubDevice subDevice=GlobalData.subDeviceMap.get(stationLog.getSubDeviceId());
 		if(subDevice!=null){
 			subDevice.setState(stationLog.getEvent());
@@ -214,12 +219,17 @@ public class DAOUtil {
 					if (!GlobalData.unusualCardIdSet.contains(cardId)) {
 						GlobalData.unusualCardIdSet.add(cardId);
 						GlobalData.unusualPosLogList.add(positionLog);
+						GlobalData.msgQueue.add("±Í ∂ø®"
+								+positionLog.getCardId()
+								+ PositionEvent.values()[positionLog.getEvent()].getDesc());
+
 					}
 
 				}
 			}
 		} else {
 		}
+		
 
 	}
 }

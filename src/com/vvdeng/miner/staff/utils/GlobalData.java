@@ -36,6 +36,6 @@ public class GlobalData {
 	public static Map<Integer,byte[]> stationStateMap=new HashMap<Integer, byte[]>();
 //	public static Map<String,byte[]>cmdMap=new HashMap<String, byte[]>();
 	public static BlockingQueue<CmdObject> cmdQueue = new ArrayBlockingQueue<CmdObject>(10);
-	public static BlockingQueue<CmdObject> msgQueue = new ArrayBlockingQueue<CmdObject>(20);
+	public static BlockingQueue<String> msgQueue = new ArrayBlockingQueue<String>(20);
 	public static Timer swingTimer;
 }
